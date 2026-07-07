@@ -3,6 +3,14 @@ import os from 'node:os';
 import { printCursorBlock } from '../lib/cursor-block.mjs';
 import { loadConfig, getAuthKey } from '../lib/config.mjs';
 import {
+  activateMapping,
+  formatMappingLabel,
+  isActiveMapping,
+  listMappings,
+  setOllamaBackend,
+} from '../lib/models-map.mjs';
+import { modelNameMatches, listLocalModels } from '../lib/ollama.mjs';
+import {
   formatStackStatus,
   getStackStatus,
   startAllStack,
@@ -15,49 +23,102 @@ import {
 import { getTrayIconPath } from '../lib/tray-icon.mjs';
 import { loadSysTray, TRAY_SEPARATOR } from '../lib/systray-loader.mjs';
 
-function menuItem(title, enabled = true) {
+const CHECK = '✓ ';
+
+function menuItem(title, enabled = true, checked = false) {
   return {
     title,
-    tooltip: title,
-    checked: false,
+    tooltip: title.replace(/^✓ /, ''),
+    checked,
     enabled,
   };
 }
 
-function buildMenu(statusText) {
+function mappingMenuTitle(mapping, active) {
+  const label = formatMappingLabel(mapping);
+  return active ? `${CHECK}${label}` : label;
+}
+
+function ollamaMenuTitle(name, active) {
+  return active ? `${CHECK}Ollama: ${name}` : `Ollama: ${name}`;
+}
+
+async function buildMenu(statusText, options, clickHandlers) {
+  clickHandlers.clear();
+
   const iconPath = getTrayIconPath();
   if (!fs.existsSync(iconPath)) {
     throw new Error(`Tray icon not found: ${iconPath}`);
   }
 
+  const config = loadConfig(options);
+  const mappings = listMappings(config, options);
+  const localModels = await listLocalModels(config.ollamaPort);
+  const items = [
+    menuItem('Start all'),
+    menuItem('Stop all'),
+    TRAY_SEPARATOR,
+    menuItem('Start proxy'),
+    menuItem('Stop proxy'),
+    menuItem('Start tunnel'),
+    menuItem('Stop tunnel'),
+    TRAY_SEPARATOR,
+  ];
+
+  for (const mapping of mappings) {
+    const active = isActiveMapping(config, mapping);
+    const title = mappingMenuTitle(mapping, active);
+    const handler = async () => {
+      activateMapping(loadConfig(options), mapping.cursorName, mapping.ollamaName, options);
+    };
+    clickHandlers.set(title, handler);
+    clickHandlers.set(title.replace(CHECK, ''), handler);
+    items.push(menuItem(title, true, active));
+  }
+
+  if (localModels.length > 0) {
+    items.push(TRAY_SEPARATOR);
+    for (const name of localModels) {
+      const active = modelNameMatches([name], config.ollamaSourceModel);
+      const title = ollamaMenuTitle(name, active);
+      const handler = async () => {
+        setOllamaBackend(loadConfig(options), name, options);
+      };
+      clickHandlers.set(title, handler);
+      clickHandlers.set(title.replace(CHECK, ''), handler);
+      items.push(menuItem(title, true, active));
+    }
+  }
+
+  items.push(
+    TRAY_SEPARATOR,
+    menuItem('Show Cursor config'),
+    TRAY_SEPARATOR,
+    menuItem('Exit'),
+  );
+
+  const modelHint = `${config.cursorModelName} → ${config.ollamaSourceModel}`;
+
   return {
     icon: iconPath,
     isTemplateIcon: os.platform() === 'darwin',
     title: '',
-    tooltip: `cursor-ollama | ${statusText}`,
-    items: [
-      menuItem('Start all'),
-      menuItem('Stop all'),
-      TRAY_SEPARATOR,
-      menuItem('Start proxy'),
-      menuItem('Stop proxy'),
-      menuItem('Start tunnel'),
-      menuItem('Stop tunnel'),
-      TRAY_SEPARATOR,
-      menuItem('Show Cursor config'),
-      TRAY_SEPARATOR,
-      menuItem('Exit'),
-    ],
+    tooltip: `cursor-ollama | ${statusText} | ${modelHint}`,
+    items,
   };
 }
 
-async function refreshTray(systray, options) {
+async function refreshTray(systray, options, clickHandlers) {
   const status = await getStackStatus(options);
   await systray.sendAction({
     type: 'update-menu',
-    menu: buildMenu(formatStackStatus(status)),
+    menu: await buildMenu(formatStackStatus(status), options, clickHandlers),
   });
   return status;
+}
+
+function resolveClickHandler(clickHandlers, title) {
+  return clickHandlers.get(title) || clickHandlers.get(title.replace(CHECK, ''));
 }
 
 export async function runTray(options = {}) {
@@ -67,13 +128,23 @@ export async function runTray(options = {}) {
   let systray;
   let exiting = false;
   let timer;
+  const clickHandlers = new Map();
 
-  const initialStatus = await getStackStatus(options);
-  systray = new SysTray({
-    menu: buildMenu(formatStackStatus(initialStatus)),
-    debug: false,
-    copyDir: true,
-  });
+  try {
+    const initialStatus = await getStackStatus(options);
+    systray = new SysTray({
+      menu: await buildMenu(formatStackStatus(initialStatus), options, clickHandlers),
+      debug: false,
+      copyDir: true,
+    });
+
+    await systray.ready();
+  } catch (err) {
+    console.error(`Tray failed to start: ${err.message}`);
+    console.error('If using global install: npm i -g cursor-ollama@latest');
+    console.error('Or run from repo: node bin/cursor-ollama.mjs tray');
+    process.exit(1);
+  }
 
   systray.onError((err) => {
     if (timer) clearInterval(timer);
@@ -81,13 +152,20 @@ export async function runTray(options = {}) {
     process.exit(1);
   });
 
-  await systray.ready();
-
   await systray.onClick(async (action) => {
     if (exiting) return;
 
+    const title = action.item.title;
+
     try {
-      switch (action.item.title) {
+      const mappingHandler = resolveClickHandler(clickHandlers, title);
+      if (mappingHandler) {
+        await mappingHandler();
+        await refreshTray(systray, options, clickHandlers);
+        return;
+      }
+
+      switch (title) {
         case 'Start all':
           await startAllStack(options);
           break;
@@ -124,16 +202,16 @@ export async function runTray(options = {}) {
     } catch (err) {
       await systray.sendAction({
         type: 'update-menu',
-        menu: buildMenu(`error: ${err.message}`),
+        menu: await buildMenu(`error: ${err.message}`, options, clickHandlers),
       });
       await new Promise((resolve) => setTimeout(resolve, 2500));
     }
 
-    await refreshTray(systray, options);
+    await refreshTray(systray, options, clickHandlers);
   });
 
   timer = setInterval(() => {
-    refreshTray(systray, options).catch(() => {});
+    refreshTray(systray, options, clickHandlers).catch(() => {});
   }, 5000);
 
   process.on('SIGINT', async () => {

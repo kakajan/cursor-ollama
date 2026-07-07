@@ -176,18 +176,22 @@ function proxyRequest(req, res, config, modelMap) {
 }
 
 export function createProxyServer(options = {}) {
-  const config = options.config || loadConfig(options.configPath);
-  const modelMap = buildModelMap(config.mappings || []);
+  const configPath = options.configPath || resolveModelsMapPath();
+  const inlineConfig = options.config;
 
   const server = http.createServer((req, res) => {
+    const config = inlineConfig || loadConfig(configPath);
+    const modelMap = buildModelMap(config.mappings || []);
     proxyRequest(req, res, config, modelMap);
   });
 
-  return { server, config, modelMap };
+  return { server, configPath };
 }
 
 export function startProxy(options = {}) {
-  const { server, config } = createProxyServer(options);
+  const configPath = options.configPath || resolveModelsMapPath();
+  const { server } = createProxyServer({ configPath });
+  const config = loadConfig(configPath);
   const port = options.port || config.proxyPort || 11435;
 
   return new Promise((resolve, reject) => {

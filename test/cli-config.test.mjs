@@ -3,8 +3,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { after, before, describe, it } from 'node:test';
-import { saveConfig, loadConfig, generateAuthKey } from '../src/lib/config.mjs';
-import { writeModelsMap, buildModelsMap } from '../src/lib/models-map.mjs';
+import { saveConfig, loadConfig, generateAuthKey, loadModelsMap } from '../src/lib/config.mjs';
+import { writeModelsMap, buildModelsMap, activateMapping } from '../src/lib/models-map.mjs';
 
 describe('CLI config', () => {
   let tempHome;
@@ -46,5 +46,36 @@ describe('CLI config', () => {
     const map = buildModelsMap({ ...loadConfig(), ollamaAuthKey: 'secret' });
     assert.equal(map.secureTunnel, true);
     assert.equal(map.cursorBaseUrl, `https://${loadConfig().tunnelHostname}/v1`);
+  });
+
+  it('writeModelsMap preserves extra mappings', () => {
+    const config = loadConfig();
+    writeModelsMap(config);
+    const existing = loadModelsMap();
+    existing.mappings.push({
+      cursorName: 'gpt-4o',
+      ollamaName: 'deepseek-coder-v2:16b',
+      recommendedFor: 'chat',
+    });
+    fs.writeFileSync(
+      path.join(tempHome, 'models.map.json'),
+      `${JSON.stringify(existing, null, 2)}\n`,
+    );
+
+    writeModelsMap(config);
+    const map = loadModelsMap();
+    assert.equal(map.mappings.length, 2);
+    assert.equal(map.mappings[1].cursorName, 'gpt-4o');
+  });
+
+  it('activateMapping updates config and models map', () => {
+    const config = loadConfig();
+    activateMapping(config, 'gpt-4o', 'llama3.2:3b');
+    const loaded = loadConfig();
+    assert.equal(loaded.cursorModelName, 'gpt-4o');
+    assert.equal(loaded.ollamaSourceModel, 'llama3.2:3b');
+    const map = loadModelsMap();
+    assert.ok(map.mappings.some((entry) => entry.cursorName === 'gpt-4o'));
+    assert.equal(map.activeMapping.ollamaName, 'llama3.2:3b');
   });
 });

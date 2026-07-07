@@ -4,10 +4,20 @@ const require = createRequire(import.meta.url);
 
 export function loadSysTray() {
   const mod = require('systray2');
-  const SysTray = mod.default || mod;
+  let SysTray = mod;
+
   if (typeof SysTray !== 'function') {
-    throw new Error('Failed to load systray2. Try: npm i -g cursor-ollama@latest');
+    SysTray = mod.default;
   }
+  if (typeof SysTray !== 'function' && SysTray?.default) {
+    SysTray = SysTray.default;
+  }
+  if (typeof SysTray !== 'function') {
+    throw new Error(
+      'Failed to load systray2. Update cursor-ollama: npm i -g cursor-ollama@latest',
+    );
+  }
+
   return SysTray;
 }
 

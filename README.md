@@ -77,7 +77,7 @@ Tray menu:
 - **Show Cursor config** — prints Base URL + API key block
 - **Exit** — stops managed processes and closes the tray
 
-Tooltip shows live status (`proxy: on | tunnel: off`). No Administrator required — runs processes in your user session (unlike `proxy install` / `tunnel install`).
+Tooltip shows live status (`proxy: on | tunnel: off`) and the active model mapping. Use the tray menu to switch **Cursor model** presets (checked item) or pick an **Ollama backend** for the current Cursor name. Changes apply immediately to `models.map.json` (proxy reloads mappings on each request).
 
 Add `cursor-ollama tray` to Windows Startup folder or a login script if you want it after reboot.
 
