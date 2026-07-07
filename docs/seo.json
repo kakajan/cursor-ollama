@@ -13,6 +13,7 @@
     "cursor-ollama wizard",
     "local ai coding assistant",
     "ollama cursor فارسی",
+    "cursor ollama windows installer",
     "cursor ollama windows wizard",
     "open source ollama cursor"
   ],
@@ -64,11 +65,14 @@
       "priceCurrency": "USD"
     },
     "softwareRequirements": "Node.js 18+, Ollama, cloudflared",
-    "downloadUrl": "https://www.npmjs.com/package/cursor-ollama",
+    "downloadUrl": "https://github.com/kakajan/cursor-ollama/releases/latest",
+    "installUrl": "https://www.npmjs.com/package/cursor-ollama",
     "license": "https://opensource.org/licenses/MIT",
     "codeRepository": "https://github.com/kakajan/cursor-ollama"
   },
   "links": {
+    "windowsInstaller": "https://github.com/kakajan/cursor-ollama/releases/latest",
+    "windowsInstallerAsset": "https://github.com/kakajan/cursor-ollama/releases/download/v1.4.4/Cursor-Ollama-Setup-1.4.4.exe",
     "npm": "https://www.npmjs.com/package/cursor-ollama",
     "github": "https://github.com/kakajan/cursor-ollama",
     "githubUser": "https://github.com/kakajan",

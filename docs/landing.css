@@ -404,6 +404,9 @@ section.block { padding: 4rem 0; border-top: 1px solid var(--border); }
 
 .step h4 { font-size: 1rem; margin-bottom: 0.35rem; }
 .step p, .step li { color: var(--muted); font-size: 0.9rem; }
+.step a { color: var(--accent); text-decoration: none; }
+.step a:hover { text-decoration: underline; }
+.step code { font-size: 0.85em; }
 .step ul { margin: 0.5rem 0 0 1.1rem; }
 .step li { margin-bottom: 0.35rem; }
 

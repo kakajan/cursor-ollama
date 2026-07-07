@@ -2,7 +2,7 @@
 ; https://jrsoftware.org/isinfo.php
 
 #ifndef AppVersion
-#define AppVersion "1.4.3"
+#define AppVersion "1.4.4"
 #endif
 #define AppName "cursor-ollama"
 #define AppPublisher "AYTRONIC CO"

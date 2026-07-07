@@ -7,6 +7,7 @@ cursor-ollama is a free, open-source CLI that connects local [Ollama](https://ol
 I built it because I wanted local models in Cursor without repeating the same fragile tunnel setup every time. The goal is simple: install it, run a friendly wizard, paste a few values into Cursor, and get back to building.
 
 - **Landing page:** [kakajan.github.io/cursor-ollama](https://kakajan.github.io/cursor-ollama)
+- **Windows installer:** [GitHub Releases](https://github.com/kakajan/cursor-ollama/releases/latest) — [`Cursor-Ollama-Setup-1.4.4.exe`](https://github.com/kakajan/cursor-ollama/releases/download/v1.4.4/Cursor-Ollama-Setup-1.4.4.exe)
 - **Package:** [npmjs.com/package/cursor-ollama](https://www.npmjs.com/package/cursor-ollama)
 - **License:** MIT
 - **فارسی:** [راهنمای فارسی](#راهنمای-فارسی)
@@ -46,6 +47,10 @@ It handles the boring parts for you:
 ## Quick Start
 
 ### Windows Wizard
+
+**Easiest on Windows:** download and run the installer from [GitHub Releases](https://github.com/kakajan/cursor-ollama/releases/latest) ([`Cursor-Ollama-Setup-1.4.4.exe`](https://github.com/kakajan/cursor-ollama/releases/download/v1.4.4/Cursor-Ollama-Setup-1.4.4.exe)). It bundles Node.js, opens the setup wizard, and can create tray shortcuts.
+
+**Or via npm:**
 
 ```powershell
 npm install -g cursor-ollama
@@ -295,7 +300,9 @@ cursor-ollama یک ابزار رایگان و متن‌باز است برای و
 
 ### شروع سریع
 
-در ویندوز راحت‌ترین مسیر ویزارد است:
+در ویندوز راحت‌ترین مسیر **فایل نصب** است: از [GitHub Releases](https://github.com/kakajan/cursor-ollama/releases/latest) فایل [`Cursor-Ollama-Setup-1.4.4.exe`](https://github.com/kakajan/cursor-ollama/releases/download/v1.4.4/Cursor-Ollama-Setup-1.4.4.exe) را دانلود و اجرا کنید. Node.js داخل نصب‌کننده است و ویزارد راه‌اندازی را باز می‌کند.
+
+**یا از npm:**
 
 ```powershell
 npm install -g cursor-ollama

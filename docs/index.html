@@ -37,7 +37,8 @@
     "description": "A friendly open-source way to connect local Ollama models to Cursor IDE via Cloudflare Tunnel with a guided wizard, tray app, and secure proxy.",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
     "softwareRequirements": "Node.js 18+, Ollama, cloudflared",
-    "downloadUrl": "https://www.npmjs.com/package/cursor-ollama",
+    "downloadUrl": "https://github.com/kakajan/cursor-ollama/releases/latest",
+    "installUrl": "https://www.npmjs.com/package/cursor-ollama",
     "license": "https://opensource.org/licenses/MIT",
     "author": { "@type": "Organization", "name": "AYTRONIC CO", "url": "http://usher.ir" },
     "codeRepository": "https://github.com/kakajan/cursor-ollama"
@@ -83,7 +84,8 @@
         </p>
         <div class="cta-row">
           <a class="btn btn-primary" href="#wizard-guide" data-i18n="hero.cta.guide">Show me the guide</a>
-          <a class="btn btn-secondary" href="https://www.npmjs.com/package/cursor-ollama" data-i18n="hero.cta.npm">Install from npm</a>
+          <a class="btn btn-secondary" href="https://github.com/kakajan/cursor-ollama/releases/download/v1.4.4/Cursor-Ollama-Setup-1.4.4.exe" data-i18n="hero.cta.win">Download for Windows</a>
+          <a class="btn btn-ghost" href="https://www.npmjs.com/package/cursor-ollama" data-i18n="hero.cta.npm">Install from npm</a>
         </div>
         <div class="trust-row">
           <span><i class="dot-live"></i><span data-i18n="hero.trust.1">No OpenAI token bill</span></span>
@@ -95,6 +97,7 @@
         <div class="panel-bar"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div>
         <div class="panel-body">
           <div class="t-comment" data-i18n="term.comment1"># Friendly path on Windows</div>
+          <div class="t-out" data-i18n="term.installer">Installer: Cursor-Ollama-Setup.exe</div>
           <div><span class="t-cmd">$</span> npm i -g cursor-ollama</div>
           <div><span class="t-cmd">$</span> cursor-ollama wizard</div>
           <div><span class="t-cmd">$</span> cursor-ollama tray</div>
@@ -161,7 +164,7 @@
           <button type="button" class="guide-tab" data-guide="cli" data-i18n="guide.tab.cli">CLI path (all OS)</button>
         </div>
         <div id="guide-wizard" class="steps">
-          <article class="step"><div class="step-num">0</div><div><h4 data-i18n="guide.w0.title">Welcome</h4><p data-i18n="guide.w0.body">Install globally: npm i -g cursor-ollama then run cursor-ollama wizard. Toggle فارسی in the top-right if you prefer Persian.</p></div></article>
+          <article class="step"><div class="step-num">0</div><div><h4 data-i18n="guide.w0.title">Welcome</h4><p data-i18n-html="guide.w0.body">On Windows, download <a href="https://github.com/kakajan/cursor-ollama/releases/latest">Cursor-Ollama-Setup.exe</a> from GitHub Releases and run the installer, or install globally with npm and run cursor-ollama wizard. Toggle فارسی in the top-right if you prefer Persian.</p></div></article>
           <article class="step"><div class="step-num">1</div><div><h4 data-i18n="guide.w1.title">Prerequisites</h4><p data-i18n="guide.w1.body">Wizard checks Node.js, Ollama, and cloudflared. Install anything marked MISSING before continuing.</p><ul><li data-i18n="guide.w1.l1">Node 18+ from nodejs.org</li><li data-i18n="guide.w1.l2">Ollama from ollama.com — run ollama serve</li><li data-i18n="guide.w1.l3">cloudflared from Cloudflare downloads</li></ul></div></article>
           <article class="step"><div class="step-num">2</div><div><h4 data-i18n="guide.w2.title">Cloudflare Tunnel</h4><p data-i18n="guide.w2.body">Choose your tunnel mode: Cloudflare domain or temporary trycloudflare link.</p><ul><li data-i18n="guide.w2.ports">Set Ollama port (11434) and proxy port (11435) if needed.</li><li data-i18n="guide.w2.named">Named mode: hostname + Check tunnel + DNS during install.</li><li data-i18n="guide.w2.quick">Quick mode: auto URL — copy/refresh from tray or Settings later.</li></ul><pre><code>cloudflared tunnel login   # named mode only
 cloudflared tunnel create cursor-ollama</code></pre></div></article>
@@ -259,7 +262,8 @@ Model:    gpt-4-turbo  (your chosen alias)</code></pre>
         <h2 data-i18n="cta.title">If this saves you time, help it grow</h2>
         <p data-i18n="cta.body">Star the repo, open issues, improve docs, send pull requests, or share it with a developer who wants local models in Cursor. Small contributions keep open-source tools alive.</p>
         <div class="cta-row" style="justify-content:center">
-          <a class="btn btn-primary" href="https://www.npmjs.com/package/cursor-ollama" data-i18n="cta.npm">Install from npm</a>
+          <a class="btn btn-primary" href="https://github.com/kakajan/cursor-ollama/releases/download/v1.4.4/Cursor-Ollama-Setup-1.4.4.exe" data-i18n="cta.win">Download for Windows</a>
+          <a class="btn btn-secondary" href="https://www.npmjs.com/package/cursor-ollama" data-i18n="cta.npm">Install from npm</a>
           <a class="btn btn-ghost" href="https://github.com/kakajan/cursor-ollama" data-i18n="cta.github">Support on GitHub</a>
         </div>
       </div>
@@ -269,6 +273,7 @@ Model:    gpt-4-turbo  (your chosen alias)</code></pre>
   <footer class="site-footer">
     <p>
       <a href="https://github.com/kakajan/cursor-ollama" data-i18n="footer.github">GitHub</a> ·
+      <a href="https://github.com/kakajan/cursor-ollama/releases/latest" data-i18n="footer.win">Windows installer</a> ·
       <a href="https://www.npmjs.com/package/cursor-ollama" data-i18n="footer.npm">npm</a> ·
       <a href="http://usher.ir" data-i18n="footer.company">AYTRONIC CO</a> ·
       <span data-i18n="footer.license">MIT License</span>

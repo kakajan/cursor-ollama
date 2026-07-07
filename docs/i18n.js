@@ -16,11 +16,13 @@ window.LANDING_I18N = {
     'hero.sub':
       'cursor-ollama is a small open-source tool I built to make local AI in Cursor feel simple: run a wizard, get a secure HTTPS URL, paste it into Cursor, and keep using your own Ollama models.',
     'hero.cta.guide': 'Show me the guide',
+    'hero.cta.win': 'Download for Windows',
     'hero.cta.npm': 'Install from npm',
     'hero.trust.1': 'No OpenAI token bill',
     'hero.trust.2': 'Works with Cursor BYOK',
     'hero.trust.3': 'English + Persian',
     'term.comment1': '# Friendly path on Windows',
+    'term.installer': 'Installer: Cursor-Ollama-Setup.exe (GitHub Releases)',
     'term.comment2': '# Cursor -> Settings -> Models',
     'term.out1': 'Base URL: https://your-host.example.com/v1',
     'term.out2': 'Cursor alias: gpt-4-turbo -> Ollama model',
@@ -69,7 +71,7 @@ window.LANDING_I18N = {
     'guide.tab.cli': 'CLI path',
     'guide.w0.title': 'Install and open the wizard',
     'guide.w0.body':
-      'Install globally with npm i -g cursor-ollama, then run cursor-ollama wizard. Use the Persian switch if you prefer the guide in Persian.',
+      'On Windows, download <a href="https://github.com/kakajan/cursor-ollama/releases/latest">Cursor-Ollama-Setup.exe</a> from GitHub Releases and run the installer — it bundles Node.js and opens the wizard. Or install globally with <code>npm i -g cursor-ollama</code>, then run <code>cursor-ollama wizard</code>. Use the Persian switch if you prefer the guide in Persian.',
     'guide.w1.title': 'Check requirements',
     'guide.w1.body':
       'The wizard checks Node.js, Ollama, and cloudflared. If something is missing, install it and run the check again.',
@@ -161,8 +163,10 @@ window.LANDING_I18N = {
     'cta.body':
       'Star the repo, open issues, improve docs, send pull requests, or share it with a developer who wants local models in Cursor. Small contributions keep open-source tools alive.',
     'cta.npm': 'Install from npm',
+    'cta.win': 'Download for Windows',
     'cta.github': 'Support on GitHub',
     'footer.github': 'GitHub',
+    'footer.win': 'Windows installer',
     'footer.npm': 'npm',
     'footer.company': 'AYTRONIC CO',
     'footer.license': 'MIT License',
@@ -185,11 +189,13 @@ window.LANDING_I18N = {
     'hero.sub':
       'cursor-ollama ابزار کوچکی است که از دل نیاز واقعی ساخته شد: یک ویزارد ساده اجرا کنید، یک آدرس HTTPS امن بگیرید، آن را در Cursor وارد کنید و با مدل‌های Ollama خودتان کدنویسی کنید.',
     'hero.cta.guide': 'راهنما را ببینم',
+    'hero.cta.win': 'دانلود نسخه ویندوز',
     'hero.cta.npm': 'نصب از npm',
     'hero.trust.1': 'بدون هزینه توکن OpenAI',
     'hero.trust.2': 'سازگار با BYOK در Cursor',
     'hero.trust.3': 'انگلیسی و فارسی',
     'term.comment1': '# مسیر راحت در ویندوز',
+    'term.installer': 'نصب‌کننده: Cursor-Ollama-Setup.exe (GitHub Releases)',
     'term.comment2': '# Cursor -> Settings -> Models',
     'term.out1': 'Base URL: https://your-host.example.com/v1',
     'term.out2': 'نام در Cursor: gpt-4-turbo -> مدل Ollama',
@@ -238,7 +244,7 @@ window.LANDING_I18N = {
     'guide.tab.cli': 'مسیر CLI',
     'guide.w0.title': 'نصب و اجرای ویزارد',
     'guide.w0.body':
-      'با npm i -g cursor-ollama نصب کنید و بعد cursor-ollama wizard را اجرا کنید. اگر فارسی راحت‌تر است، از دکمه فارسی بالای صفحه استفاده کنید.',
+      'در ویندوز، <a href="https://github.com/kakajan/cursor-ollama/releases/latest">Cursor-Ollama-Setup.exe</a> را از GitHub Releases دانلود و اجرا کنید — Node.js داخل نصب‌کننده است و ویزارد باز می‌شود. یا با <code>npm i -g cursor-ollama</code> نصب کنید و بعد <code>cursor-ollama wizard</code> را اجرا کنید. اگر فارسی راحت‌تر است، از دکمه فارسی بالای صفحه استفاده کنید.',
     'guide.w1.title': 'چک کردن پیش‌نیازها',
     'guide.w1.body':
       'ویزارد Node.js، Ollama و cloudflared را بررسی می‌کند. اگر چیزی missing بود، نصبش کنید و دوباره check بزنید.',
@@ -330,8 +336,10 @@ window.LANDING_I18N = {
     'cta.body':
       'به repo ستاره بدهید، issue باز کنید، مستندات را بهتر کنید، pull request بفرستید یا آن را به برنامه‌نویسی معرفی کنید که می‌خواهد مدل محلی را در Cursor استفاده کند. همین کمک‌های کوچک ابزارهای متن‌باز را زنده نگه می‌دارند.',
     'cta.npm': 'نصب از npm',
+    'cta.win': 'دانلود نسخه ویندوز',
     'cta.github': 'حمایت در GitHub',
     'footer.github': 'گیت‌هاب',
+    'footer.win': 'نصب‌کننده ویندوز',
     'footer.npm': 'npm',
     'footer.company': 'AYTRONIC CO',
     'footer.license': 'مجوز MIT',
@@ -348,6 +356,11 @@ window.applyLandingLang = function applyLandingLang(lang) {
   document.querySelectorAll('[data-i18n]').forEach((el) => {
     const key = el.dataset.i18n;
     if (dict[key]) el.textContent = dict[key];
+  });
+
+  document.querySelectorAll('[data-i18n-html]').forEach((el) => {
+    const key = el.dataset.i18nHtml;
+    if (dict[key]) el.innerHTML = dict[key];
   });
 
   document.querySelectorAll('.lang-switch button').forEach((btn) => {

@@ -39,6 +39,8 @@ When changing public copy, update these together:
 3. [`seo.json`](seo.json) for the shared SEO summary and social preview metadata.
 4. [`../README.md`](../README.md) if the change affects installation, commands, privacy, support, or contribution guidance.
 
+When the Windows installer version changes, update the direct download link (`Cursor-Ollama-Setup-<version>.exe`) in `index.html`, `seo.json`, and `../README.md` to match `package.json`.
+
 ## GitHub Pages
 
 Deployment uses GitHub Pages from the `docs/` folder.
@@ -70,3 +72,4 @@ The workflow at [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) 
 - ادعاهای حساس مثل privacy، رایگان بودن و مسیر OpenAI را دقیق نگه دارید.
 - دعوت به مشارکت و حمایت را دوستانه بنویسید: star، issue، pull request، اصلاح مستندات و معرفی پروژه.
 - اگر متن visible عوض شد، `i18n.js`، `index.html`، `seo.json` و در صورت نیاز `../README.md` را با هم sync کنید.
+- لینک مستقیم نصب‌کننده ویندوز (`Cursor-Ollama-Setup-<version>.exe`) باید با نسخه `package.json` هم‌خوان بماند.
