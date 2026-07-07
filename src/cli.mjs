@@ -8,6 +8,8 @@ import { runSetup } from './commands/setup.mjs';
 import { runVerify } from './commands/verify.mjs';
 import { runCursorConfig } from './commands/cursor-config.mjs';
 import { runProxyCommand } from './commands/proxy.mjs';
+import { runTunnelCommand } from './commands/tunnel.mjs';
+import { runTray } from './commands/tray.mjs';
 
 function getVersion() {
   const pkgPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'package.json');
@@ -95,6 +97,48 @@ export async function runCli(argv) {
     .description('Show proxy OS service status')
     .action(async () => {
       await runProxyCommand('status');
+    });
+
+  const tunnel = program.command('tunnel').description('Manage Cloudflare Tunnel (cloudflared)');
+
+  tunnel
+    .command('run')
+    .description('Run tunnel in foreground (dev)')
+    .option('--local', 'Use local project config')
+    .action(async (opts) => {
+      await runTunnelCommand('run', opts);
+    });
+
+  tunnel
+    .command('start')
+    .description('Alias for tunnel run')
+    .option('--local', 'Use local project config')
+    .action(async (opts) => {
+      await runTunnelCommand('run', opts);
+    });
+
+  tunnel
+    .command('install')
+    .description('Install cloudflared OS service')
+    .option('--local', 'Use local project config')
+    .action(async (opts) => {
+      await runTunnelCommand('install', opts);
+    });
+
+  tunnel
+    .command('status')
+    .description('Show tunnel config path and reachability')
+    .option('--local', 'Use local project config')
+    .action(async (opts) => {
+      await runTunnelCommand('status', opts);
+    });
+
+  program
+    .command('tray')
+    .description('System tray icon to start/stop proxy and tunnel')
+    .option('--local', 'Use local project config')
+    .action(async (opts) => {
+      await runTray(opts);
     });
 
   await program.parseAsync(argv);

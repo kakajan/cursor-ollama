@@ -5,7 +5,7 @@ import { loadConfig, saveConfig, generateAuthKey } from '../lib/config.mjs';
 import { writeModelsMap } from '../lib/models-map.mjs';
 import { runDoctor } from './doctor.mjs';
 import { runVerify } from './verify.mjs';
-import { runCommand, fetchOk, sleep } from '../lib/exec.mjs';
+import { runCommand, fetchOk, sleep, WINDOWS_SERVICE_HINT } from '../lib/exec.mjs';
 import { getTunnelTemplatePath } from '../lib/paths.mjs';
 import { installProxyService } from '../lib/platform/index.mjs';
 import { ensureModelAvailable } from '../lib/ollama.mjs';
@@ -71,7 +71,11 @@ export async function runSetup(options = {}) {
       await installProxyService(config);
     } catch (err) {
       console.warn(`Proxy service install failed: ${err.message}`);
-      console.warn('You can run: cursor-ollama proxy start');
+      if (process.platform === 'win32') {
+        console.warn(WINDOWS_SERVICE_HINT);
+      } else {
+        console.warn('You can run: cursor-ollama proxy start');
+      }
     }
   }
 

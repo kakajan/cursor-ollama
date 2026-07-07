@@ -241,6 +241,21 @@ cloudflared tunnel login
 cloudflared tunnel create cursor-ollama
 cursor-ollama setup
 cursor-ollama cursor-config</code></pre>
+      <h3 style="margin-top:2rem; font-size:1.15rem;">Run tunnel + proxy</h3>
+      <pre><code># Production: setup installs cloudflared + proxy OS services
+cursor-ollama setup
+cursor-ollama proxy install
+
+# Dev: run both in foreground (two terminals)
+cursor-ollama proxy start
+cursor-ollama tunnel run
+
+# Or use the system tray (one app, no admin)
+cursor-ollama tray
+
+# Check
+cursor-ollama tunnel status
+cursor-ollama verify</code></pre>
       <p style="color:var(--muted); margin-top:1rem; font-size:.9rem">
         Requires Node.js 18+, <a href="https://ollama.com/download" style="color:var(--accent)">Ollama</a>,
         <a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/" style="color:var(--accent)">cloudflared</a>,

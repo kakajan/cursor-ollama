@@ -1,10 +1,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { runCommand } from '../exec.mjs';
+import { isWindowsAdmin, runCommand, WINDOWS_SERVICE_HINT } from '../exec.mjs';
 import { getPackageRoot, getProxyServerPath } from '../paths.mjs';
 import { getModelsMapPath } from '../config.mjs';
 
 export async function installProxyService(config) {
+  if (!(await isWindowsAdmin())) {
+    throw new Error(`Access is denied (Administrator required).\n${WINDOWS_SERVICE_HINT}`);
+  }
+
   const node = process.execPath;
   const proxyScript = getProxyServerPath();
   const mapPath = getModelsMapPath();

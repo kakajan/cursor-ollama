@@ -97,6 +97,7 @@ export async function runInit() {
     console.log('  1. cloudflared tunnel login');
     console.log(`  2. cloudflared tunnel create ${config.tunnelName}`);
     console.log('  3. cursor-ollama setup');
+    console.log('  4. cursor-ollama tunnel run   # or: tunnel install for OS service');
     if (skipModelPull) {
       console.log('     (setup will not pull; ensure the model is already installed locally)');
     }

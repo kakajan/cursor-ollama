@@ -56,8 +56,62 @@ node bin/cursor-ollama.mjs setup --local
 | `cursor-ollama proxy install` | Install OS proxy service |
 | `cursor-ollama proxy stop` | Stop OS proxy service |
 | `cursor-ollama proxy status` | Service status |
+| `cursor-ollama tunnel run` | Run Cloudflare tunnel in foreground (dev) |
+| `cursor-ollama tunnel install` | Install cloudflared OS service |
+| `cursor-ollama tunnel status` | Tunnel config path and HTTPS check |
+| `cursor-ollama tray` | System tray to start/stop proxy + tunnel |
 
-Flags for `setup`: `--local`, `--skip-tunnel`, `--skip-service`
+Flags for `setup`: `--local`, `--skip-tunnel`, `--skip-service`, `--skip-pull`
+
+## System tray (Windows / macOS / Linux)
+
+Run a tray icon to control proxy and tunnel without keeping terminals open:
+
+```bash
+cursor-ollama tray
+```
+
+Tray menu:
+- **Start all** / **Stop all** — proxy (`:11435`) + cloudflared tunnel
+- **Start/Stop proxy** and **Start/Stop tunnel** individually
+- **Show Cursor config** — prints Base URL + API key block
+- **Exit** — stops managed processes and closes the tray
+
+Tooltip shows live status (`proxy: on | tunnel: off`). No Administrator required — runs processes in your user session (unlike `proxy install` / `tunnel install`).
+
+Add `cursor-ollama tray` to Windows Startup folder or a login script if you want it after reboot.
+
+## Running the tunnel
+
+`cursor-ollama setup` writes `~/.cloudflared/<tunnel-name>-tunnel.yml` and tries to install cloudflared as an OS service. The tunnel must be running for Cursor to reach your proxy.
+
+**Production (recommended):**
+
+```bash
+cursor-ollama setup              # writes config + installs cloudflared service
+cursor-ollama proxy install      # proxy OS service on :11435
+```
+
+**Development / manual:**
+
+```bash
+cursor-ollama proxy start        # proxy on :11435 (foreground)
+cursor-ollama tunnel run         # cloudflared tunnel (foreground)
+```
+
+**Check status:**
+
+```bash
+cursor-ollama tunnel status
+cursor-ollama verify
+```
+
+Tunnel ingress points to the **proxy** (`127.0.0.1:11435`), not Ollama directly. One-time Cloudflare setup (before `setup`):
+
+```bash
+cloudflared tunnel login
+cloudflared tunnel create cursor-ollama
+```
 
 ## Config locations
 
@@ -117,6 +171,8 @@ Legacy shell wrappers (`scripts/setup.sh`, etc.) delegate to the CLI.
 | `AI Model Not Found` | Use allowlisted name (`gpt-4o-mini`); check `models.map.json` |
 | `401 Unauthorized` | API key in Cursor must match `ollamaAuthKey` |
 | Proxy not running | `cursor-ollama proxy start` or `cursor-ollama proxy install` |
+| Windows `Access is denied` on install | Run **PowerShell as Administrator**, then `cursor-ollama proxy install` and `cursor-ollama tunnel install`; or use `proxy start` + `tunnel run` in two terminals |
+| Tunnel not reachable | `cursor-ollama tunnel run` or `cursor-ollama tunnel install`; check `tunnel status` |
 | Built-in models broken | Toggle Override Base URL off when using Cursor-native models |
 
 ## License

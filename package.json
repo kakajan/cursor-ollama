@@ -1,6 +1,6 @@
 {
   "name": "cursor-ollama",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Cloudflare Tunnel + Ollama proxy CLI for Cursor IDE (Strategy C: auth + model rewrite)",
   "type": "module",
   "private": false,
@@ -19,6 +19,7 @@
   "files": [
     "bin/",
     "src/",
+    "assets/",
     "config/proxy/",
     "config/tunnel.yml.template",
     "config/models.map.example.json"
@@ -42,6 +43,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "commander": "^12.1.0"
+    "commander": "^12.1.0",
+    "systray2": "^2.1.4"
   }
 }

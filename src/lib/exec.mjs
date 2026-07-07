@@ -53,6 +53,16 @@ export async function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+export async function isWindowsAdmin() {
+  if (process.platform !== 'win32') return true;
+  const { code } = await runCommand('net', ['session'], { allowFail: true, shell: true });
+  return code === 0;
+}
+
+export const WINDOWS_SERVICE_HINT =
+  'On Windows, service install needs an elevated terminal (Run as Administrator).\n' +
+  '  Foreground instead: cursor-ollama proxy start  +  cursor-ollama tunnel run';
+
 export async function fetchOk(url, options = {}) {
   const res = await fetch(url, options);
   if (!res.ok) {
