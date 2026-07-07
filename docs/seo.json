@@ -1,19 +1,20 @@
 {
   "siteName": "cursor-ollama",
-  "title": "Easy Ollama Setup for Cursor IDE — cursor-ollama",
-  "description": "The easiest way to connect local Ollama to Cursor IDE. Free open-source CLI with Windows wizard, Cloudflare Tunnel or trycloudflare quick links, settings page, tray controls, and complete setup guide.",
+  "title": "Connect Ollama to Cursor without setup pain — cursor-ollama",
+  "description": "A friendly open-source tool for connecting local Ollama models to Cursor through a secure Cloudflare Tunnel, guided Windows wizard, tray controls, model aliases, and clear setup docs.",
   "keywords": [
-    "easy ollama setup for cursor",
     "connect ollama to cursor",
+    "cursor ollama",
     "cursor ollama tutorial",
     "cursor ide local llm",
     "ollama cloudflare tunnel",
     "trycloudflare cursor ollama",
     "cursor byok ollama",
-    "cursor-ollama wizard guide",
+    "cursor-ollama wizard",
     "local ai coding assistant",
     "ollama cursor فارسی",
-    "cursor ollama windows wizard"
+    "cursor ollama windows wizard",
+    "open source ollama cursor"
   ],
   "author": "AsherQelich SayyedMuhammadi",
   "company": "AYTRONIC CO",
@@ -25,23 +26,23 @@
   "openGraph": {
     "type": "website",
     "locale": "en_US",
-    "title": "Easy Ollama Setup for Cursor IDE",
-    "description": "Connect Ollama to Cursor in minutes. Windows wizard, Cloudflare Tunnel, Bearer auth, and model mapping — free and open source.",
+    "title": "Connect Ollama to Cursor without setup pain",
+    "description": "Run local Ollama models in Cursor with a friendly wizard, secure tunnel, Bearer auth, model aliases, and tray controls. Free and open source.",
     "image": "og-image.webp",
     "imageWidth": 1200,
     "imageHeight": 630,
-    "imageAlt": "cursor-ollama — easy Ollama setup for Cursor via Cloudflare Tunnel"
+    "imageAlt": "cursor-ollama — connect local Ollama models to Cursor through Cloudflare Tunnel"
   },
   "socialPreview": {
     "image": "social-preview.webp",
     "width": 1280,
     "height": 640,
-    "imageAlt": "cursor-ollama — The easiest way to connect Ollama to Cursor"
+    "imageAlt": "cursor-ollama — local Ollama models in Cursor without setup pain"
   },
   "twitter": {
     "card": "summary_large_image",
-    "title": "Easy Ollama Setup for Cursor IDE",
-    "description": "Free CLI + Windows wizard. Local Ollama in Cursor via Cloudflare Tunnel — complete guide included.",
+    "title": "Connect Ollama to Cursor without setup pain",
+    "description": "A free open-source CLI and Windows wizard for using local Ollama models in Cursor.",
     "image": "og-image.webp",
     "creator": "@kakajan"
   },
@@ -51,7 +52,7 @@
     "name": "cursor-ollama",
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "Windows, macOS, Linux",
-    "description": "The easiest way to connect local Ollama models to Cursor IDE via Cloudflare Tunnel with guided wizard and tray app.",
+    "description": "A friendly open-source way to connect local Ollama models to Cursor IDE via Cloudflare Tunnel with a guided wizard, tray app, and secure proxy.",
     "author": {
       "@type": "Organization",
       "name": "AYTRONIC CO",

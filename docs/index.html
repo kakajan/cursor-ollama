@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Easy Ollama Setup for Cursor — cursor-ollama</title>
+  <title>Connect Ollama to Cursor without setup pain — cursor-ollama</title>
   <meta name="author" content="AsherQelich SayyedMuhammadi, AYTRONIC CO">
-  <meta name="description" content="The easiest way to connect local Ollama to Cursor IDE. Free open-source CLI with Windows wizard, secure Cloudflare Tunnel, model name rewrite, and one-click tray control.">
-  <meta name="keywords" content="easy ollama setup for cursor, cursor ollama, local llm cursor ide, ollama cloudflare tunnel, cursor byok, cursor-ollama wizard, ollama cursor فارسی">
+  <meta name="description" content="A friendly open-source tool for connecting local Ollama models to Cursor through a secure Cloudflare Tunnel, guided Windows wizard, tray controls, and clear setup docs.">
+  <meta name="keywords" content="connect ollama to cursor, cursor ollama, local llm cursor ide, ollama cloudflare tunnel, cursor byok, cursor-ollama wizard, ollama cursor فارسی">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#6366f1">
   <link rel="canonical" href="https://kakajan.github.io/cursor-ollama/">
@@ -14,13 +14,13 @@
   <meta property="og:locale" content="en_US">
   <meta property="og:locale:alternate" content="fa_IR">
   <meta property="og:site_name" content="cursor-ollama">
-  <meta property="og:title" content="Easy Ollama Setup for Cursor IDE">
-  <meta property="og:description" content="Connect Ollama to Cursor in minutes. Windows wizard, Cloudflare Tunnel, Bearer auth, and model mapping — free & open source.">
+  <meta property="og:title" content="Connect Ollama to Cursor without setup pain">
+  <meta property="og:description" content="Run local Ollama models in Cursor with a friendly wizard, secure tunnel, Bearer auth, model aliases, and tray controls. Free and open source.">
   <meta property="og:url" content="https://kakajan.github.io/cursor-ollama/">
   <meta property="og:image" content="https://kakajan.github.io/cursor-ollama/og-image.webp">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Easy Ollama Setup for Cursor IDE">
-  <meta name="twitter:description" content="Free CLI + Windows wizard to run local Ollama in Cursor via Cloudflare Tunnel.">
+  <meta name="twitter:title" content="Connect Ollama to Cursor without setup pain">
+  <meta name="twitter:description" content="A free open-source CLI and Windows wizard for using local Ollama models in Cursor.">
   <meta name="twitter:image" content="https://kakajan.github.io/cursor-ollama/og-image.webp">
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,7 +34,7 @@
     "name": "cursor-ollama",
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "Windows, macOS, Linux",
-    "description": "The easiest way to connect local Ollama models to Cursor IDE via Cloudflare Tunnel with a guided wizard, tray app, and secure proxy.",
+    "description": "A friendly open-source way to connect local Ollama models to Cursor IDE via Cloudflare Tunnel with a guided wizard, tray app, and secure proxy.",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
     "softwareRequirements": "Node.js 18+, Ollama, cloudflared",
     "downloadUrl": "https://www.npmjs.com/package/cursor-ollama",
@@ -68,33 +68,33 @@
   <main id="top">
     <section class="hero wrap">
       <div>
-        <div class="eyebrow" data-i18n="hero.eyebrow">Free · Open source · 5-minute setup</div>
+        <div class="eyebrow" data-i18n="hero.eyebrow">Free, open source, made for developers who want local models</div>
         <div class="badges">
           <span class="badge" data-i18n="badge.wizard">Windows wizard</span>
           <span class="badge" data-i18n="badge.tunnel">Cloudflare Tunnel</span>
-          <span class="badge" data-i18n="badge.quick">trycloudflare option</span>
+          <span class="badge" data-i18n="badge.quick">No domain option</span>
           <span class="badge" data-i18n="badge.secure">Bearer auth</span>
           <span class="badge" data-i18n="badge.mit">MIT</span>
         </div>
-        <h1 data-i18n="hero.title">The easiest way to connect Ollama to Cursor</h1>
+        <h1 data-i18n="hero.title">Connect Ollama to Cursor without fighting the setup</h1>
         <p class="hero-sub" data-i18n="hero.sub">
-          Run local models in Cursor IDE without OpenAI bills. cursor-ollama sets up a secure HTTPS tunnel,
-          rewrites model names Cursor accepts, and gives you a tray app to start everything in one click.
+          cursor-ollama is a small open-source tool I built to make local AI in Cursor feel simple: run a wizard,
+          get a secure HTTPS URL, paste it into Cursor, and keep using your own Ollama models.
         </p>
         <div class="cta-row">
-          <a class="btn btn-primary" href="#wizard-guide" data-i18n="hero.cta.guide">Start the wizard guide</a>
+          <a class="btn btn-primary" href="#wizard-guide" data-i18n="hero.cta.guide">Show me the guide</a>
           <a class="btn btn-secondary" href="https://www.npmjs.com/package/cursor-ollama" data-i18n="hero.cta.npm">Install from npm</a>
         </div>
         <div class="trust-row">
-          <span><i class="dot-live"></i><span data-i18n="hero.trust.1">No OpenAI API calls</span></span>
-          <span data-i18n="hero.trust.2">Works with BYOK</span>
-          <span data-i18n="hero.trust.3">English + Persian UI</span>
+          <span><i class="dot-live"></i><span data-i18n="hero.trust.1">No OpenAI token bill</span></span>
+          <span data-i18n="hero.trust.2">Works with Cursor BYOK</span>
+          <span data-i18n="hero.trust.3">English + Persian</span>
         </div>
       </div>
       <div class="hero-panel">
         <div class="panel-bar"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div>
         <div class="panel-body">
-          <div class="t-comment" data-i18n="term.comment1"># Fastest path (Windows)</div>
+          <div class="t-comment" data-i18n="term.comment1"># Friendly path on Windows</div>
           <div><span class="t-cmd">$</span> npm i -g cursor-ollama</div>
           <div><span class="t-cmd">$</span> cursor-ollama wizard</div>
           <div><span class="t-cmd">$</span> cursor-ollama tray</div>
@@ -103,25 +103,25 @@
           <br>
           <div class="t-comment" data-i18n="term.comment2"># Cursor → Settings → Models</div>
           <div class="t-out" data-i18n="term.out1">Base URL: https://your-host.example.com/v1</div>
-          <div class="t-out" data-i18n="term.out2">Model: gpt-4-turbo → Ollama: your-model</div>
-          <div class="t-out" data-i18n="term.out3">Quick mode: https://….trycloudflare.com/v1</div>
+          <div class="t-out" data-i18n="term.out2">Cursor alias: gpt-4-turbo → Ollama model</div>
+          <div class="t-out" data-i18n="term.out3">No domain: https://random.trycloudflare.com/v1</div>
         </div>
       </div>
     </section>
 
     <section id="why" class="block wrap">
       <div class="section-head">
-        <h2 data-i18n="why.title">Why developers choose cursor-ollama</h2>
-        <p data-i18n="why.lead">Cursor runs in the cloud and cannot reach localhost. We solve routing, naming, and security in one package.</p>
+        <h2 data-i18n="why.title">Why this exists</h2>
+        <p data-i18n="why.lead">Cursor cannot simply call your localhost Ollama from its cloud flow. The hard parts are routing, authentication, model names, and keeping it easy enough to use again tomorrow.</p>
       </div>
       <div class="problem-grid">
         <article class="card problem-card bad">
-          <h3 data-i18n="why.without.title">Without cursor-ollama</h3>
-          <p data-i18n="why.without.body">Manual tunnel config, exposed Ollama, model names Cursor rejects, and fragile copy-paste setup that breaks after every update.</p>
+          <h3 data-i18n="why.without.title">The manual way</h3>
+          <p data-i18n="why.without.body">You wire a tunnel by hand, worry about exposing Ollama, rename models until Cursor accepts them, and then forget which command fixed it last time.</p>
         </article>
         <article class="card problem-card good">
           <h3 data-i18n="why.with.title">With cursor-ollama</h3>
-          <p data-i18n="why.with.body">Guided wizard, authenticated proxy, allowlisted model aliases, health checks, tray controls, and a complete uninstall path.</p>
+          <p data-i18n="why.with.body">A guided setup, an authenticated proxy, model aliases, health checks, tray controls, settings page, and a clean uninstall path live in one small tool.</p>
         </article>
       </div>
       <div class="grid-3" style="margin-top:1rem">
@@ -256,11 +256,11 @@ Model:    gpt-4-turbo  (your chosen alias)</code></pre>
 
     <section class="wrap">
       <div class="cta-band">
-        <h2 data-i18n="cta.title">Ready for local AI coding in Cursor?</h2>
-        <p data-i18n="cta.body">Install once, run the wizard, paste three fields into Cursor, and code with your own models tonight.</p>
+        <h2 data-i18n="cta.title">If this saves you time, help it grow</h2>
+        <p data-i18n="cta.body">Star the repo, open issues, improve docs, send pull requests, or share it with a developer who wants local models in Cursor. Small contributions keep open-source tools alive.</p>
         <div class="cta-row" style="justify-content:center">
-          <a class="btn btn-primary" href="https://www.npmjs.com/package/cursor-ollama" data-i18n="cta.npm">Get cursor-ollama on npm</a>
-          <a class="btn btn-ghost" href="https://github.com/kakajan/cursor-ollama" data-i18n="cta.github">Star on GitHub</a>
+          <a class="btn btn-primary" href="https://www.npmjs.com/package/cursor-ollama" data-i18n="cta.npm">Install from npm</a>
+          <a class="btn btn-ghost" href="https://github.com/kakajan/cursor-ollama" data-i18n="cta.github">Support on GitHub</a>
         </div>
       </div>
     </section>
@@ -273,7 +273,7 @@ Model:    gpt-4-turbo  (your chosen alias)</code></pre>
       <a href="http://usher.ir" data-i18n="footer.company">AYTRONIC CO</a> ·
       <span data-i18n="footer.license">MIT License</span>
     </p>
-    <p style="margin-top:.5rem" data-i18n="footer.tag">Built for developers who want local LLMs in Cursor — without the setup headache.</p>
+    <p style="margin-top:.5rem" data-i18n="footer.tag">Built with care for developers who want local Ollama models in Cursor without the setup headache.</p>
   </footer>
 
   <script src="i18n.js"></script>

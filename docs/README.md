@@ -1,50 +1,60 @@
-# Landing page & SEO
+# Landing Page And SEO
 
-Static site in [`docs/`](.) for GitHub Pages.
-
-## Live site
+This folder contains the public landing page for cursor-ollama:
 
 **https://kakajan.github.io/cursor-ollama/**
 
-Repository: [github.com/kakajan/cursor-ollama](https://github.com/kakajan/cursor-ollama)  
-Maintained by [@kakajan](https://github.com/kakajan) · **AYTRONIC CO** · [usher.ir](http://usher.ir)
+The page is intentionally simple. It should feel like a developer explaining a tool he built with care: clear, honest, practical, and welcoming to people who want to use, improve, or support the project.
 
-**Languages:** English (default) · Persian (فارسی) — toggle in the header. Font: **Vazirmatn**.
-
-## Files
+## What Lives Here
 
 | File | Purpose |
 |------|---------|
-| [`index.html`](index.html) | Landing page (EN + FA) |
-| [`landing.css`](landing.css) | Landing page styles |
-| [`i18n.js`](i18n.js) | English + Persian copy (marketing + wizard guide) |
-| [`logo.svg`](logo.svg) | Nav logo (synced from `assets/logo.svg`) |
-| [`logo.png`](logo.png) | Favicon (32×32, synced from `assets/logo.png`) |
-| [`seo.json`](seo.json) | SEO metadata source of truth |
-| [`og-image.webp`](og-image.webp) | Open Graph / Twitter card (WebP) |
-| [`social-preview.webp`](social-preview.webp) | GitHub social preview (1280×640, WebP) |
-| [`robots.txt`](robots.txt) | Crawler rules + sitemap |
+| [`index.html`](index.html) | Static landing page shell and SEO tags |
+| [`i18n.js`](i18n.js) | English and Persian landing copy |
+| [`landing.css`](landing.css) | Visual styling |
+| [`logo.svg`](logo.svg) | Header logo, synced from `assets/logo.svg` |
+| [`logo.png`](logo.png) | Favicon, synced from `assets/logo.png` |
+| [`seo.json`](seo.json) | SEO metadata source |
+| [`robots.txt`](robots.txt) | Crawler rules and sitemap link |
 | [`sitemap.xml`](sitemap.xml) | Sitemap |
 
-## Enable GitHub Pages
+## Content Voice
 
-1. Repo **Settings → Pages**
-2. Source: **GitHub Actions**
-3. Push to `main` — [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) deploys `docs/`
+Keep the copy human and useful:
 
-## SEO checklist
+- Explain the real problem: Cursor cannot simply reach local Ollama in every flow.
+- Be honest about privacy: requests route to local Ollama, but Cursor is still part of the IDE flow.
+- Prefer short, practical guidance over marketing noise.
+- Avoid AI-sounding phrases, filler, and exaggerated promises.
+- Invite support warmly: stars, issues, docs fixes, pull requests, and sharing the project all count.
+- Keep Persian text natural. A developer should be able to read it without feeling it was machine-translated.
+
+## Keep Things In Sync
+
+When changing public copy, update these together:
+
+1. [`i18n.js`](i18n.js) for the visible English and Persian text.
+2. [`index.html`](index.html) for fallback text, meta tags, Open Graph, Twitter card, and structured data.
+3. [`seo.json`](seo.json) for the shared SEO summary and social preview metadata.
+4. [`../README.md`](../README.md) if the change affects installation, commands, privacy, support, or contribution guidance.
+
+## GitHub Pages
+
+Deployment uses GitHub Pages from the `docs/` folder.
+
+1. Repository `Settings -> Pages`
+2. Source: GitHub Actions
+3. Push to `main`
+
+The workflow at [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) publishes this folder.
+
+## SEO Checklist
 
 - [x] Canonical URL: `https://kakajan.github.io/cursor-ollama/`
-- [x] OG image: `https://kakajan.github.io/cursor-ollama/og-image.webp`
-- [x] Bilingual landing (EN default, FA toggle)
-- [x] GitHub social preview: [`social-preview.webp`](social-preview.webp) (1280×640)
-- [ ] Verify OG preview: [opengraph.xyz](https://www.opengraph.xyz/)
+- [x] Bilingual landing: English default, Persian toggle
+- [x] Human meta description aligned with page copy
+- [x] Open Graph and Twitter card metadata
+- [x] Sitemap and robots file
+- [ ] Verify social preview with [opengraph.xyz](https://www.opengraph.xyz/)
 - [ ] Submit sitemap in Google Search Console
-
-## Keep in sync
-
-When changing marketing copy, update:
-
-1. [`seo.json`](seo.json) — meta title/description/keywords
-2. [`i18n.js`](i18n.js) — EN + FA strings (wizard steps, settings/tray, quick tunnel FAQ)
-3. [`../README.md`](../README.md) — full CLI / installer documentation
