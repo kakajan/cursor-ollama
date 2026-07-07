@@ -1,0 +1,47 @@
+{
+  "name": "cursor-ollama",
+  "version": "1.1.0",
+  "description": "Cloudflare Tunnel + Ollama proxy CLI for Cursor IDE (Strategy C: auth + model rewrite)",
+  "type": "module",
+  "private": false,
+  "author": "AsherQelich SayyedMuhammadi <faslolkhitab@gmail.com> (AYTRONIC CO)",
+  "homepage": "https://kakajan.github.io/cursor-ollama/",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:kakajan/cursor-ollama.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kakajan/cursor-ollama/issues"
+  },
+  "bin": {
+    "cursor-ollama": "./bin/cursor-ollama.mjs"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "config/proxy/",
+    "config/tunnel.yml.template",
+    "config/models.map.example.json"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node config/proxy/server.mjs",
+    "test": "node --test config/proxy/server.test.mjs test/integration.test.mjs test/cli-config.test.mjs",
+    "test:unit": "node --test config/proxy/server.test.mjs test/cli-config.test.mjs",
+    "test:integration": "node --test test/integration.test.mjs",
+    "prepublishOnly": "npm test"
+  },
+  "keywords": [
+    "cursor",
+    "ollama",
+    "cloudflare-tunnel",
+    "cli",
+    "aytronic"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.1.0"
+  }
+}
