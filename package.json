@@ -8,13 +8,13 @@
   "homepage": "https://kakajan.github.io/cursor-ollama/",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:kakajan/cursor-ollama.git"
+    "url": "git+ssh://git@github.com/kakajan/cursor-ollama.git"
   },
   "bugs": {
     "url": "https://github.com/kakajan/cursor-ollama/issues"
   },
   "bin": {
-    "cursor-ollama": "./bin/cursor-ollama.mjs"
+    "cursor-ollama": "bin/cursor-ollama.mjs"
   },
   "files": [
     "bin/",

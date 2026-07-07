@@ -13,6 +13,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: npm
+      - run: npm ci
       - run: npm test
 
   integration:
@@ -22,6 +24,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: npm
+      - run: npm ci
       - run: npm run test:integration
 
   cli-unit:
@@ -31,6 +35,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: npm
+      - run: npm ci
       - run: node --test test/cli-config.test.mjs
 
   npm-pack:
@@ -40,6 +46,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: npm
+      - run: npm ci
       - run: npm pack --dry-run
 
   scripts-shellcheck:
@@ -68,6 +76,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: npm
+      - run: npm ci
       - name: CLI doctor
         run: node bin/cursor-ollama.mjs doctor
       - name: CLI init config fixture
@@ -95,6 +105,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: npm
+      - run: npm ci
       - name: Verify (mock mode)
         shell: bash
         run: node bin/cursor-ollama.mjs verify --mock
