@@ -59,8 +59,9 @@ export async function runCli(argv) {
   program
     .command('doctor')
     .description('Check prerequisites (node, ollama, cloudflared)')
-    .action(async () => {
-      await runDoctor();
+    .option('--report-only', 'Print status without failing when tools are missing')
+    .action(async (opts) => {
+      await runDoctor(opts);
     });
 
   const proxy = program.command('proxy').description('Manage the local proxy');

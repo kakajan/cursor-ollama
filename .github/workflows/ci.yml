@@ -79,7 +79,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: CLI doctor
-        run: node bin/cursor-ollama.mjs doctor
+        run: node bin/cursor-ollama.mjs doctor --report-only
       - name: CLI init config fixture
         run: |
           export CURSOR_OLLAMA_CONFIG_DIR="$RUNNER_TEMP/cursor-ollama"

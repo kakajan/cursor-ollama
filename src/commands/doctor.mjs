@@ -6,7 +6,7 @@ const CHECKS = [
   { name: 'cloudflared', hint: 'https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/' },
 ];
 
-export async function runDoctor() {
+export async function runDoctor(options = {}) {
   let failed = 0;
 
   for (const check of CHECKS) {
@@ -19,7 +19,7 @@ export async function runDoctor() {
     }
   }
 
-  if (failed > 0) {
+  if (failed > 0 && !options.reportOnly) {
     process.exitCode = 1;
   }
 
