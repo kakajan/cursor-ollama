@@ -5,8 +5,8 @@ import { loadConfig, saveConfig, generateAuthKey } from '../lib/config.mjs';
 import { writeModelsMap } from '../lib/models-map.mjs';
 import { runDoctor } from './doctor.mjs';
 import { runVerify } from './verify.mjs';
-import { runCommand, fetchOk, sleep, WINDOWS_SERVICE_HINT } from '../lib/exec.mjs';
-import { getTunnelTemplatePath } from '../lib/paths.mjs';
+import { runCommand, fetchOk, sleep, WINDOWS_SERVICE_HINT, isWindowsAdmin } from '../lib/exec.mjs';
+import { getConfigPath, getTunnelTemplatePath } from '../lib/paths.mjs';
 import { installProxyService } from '../lib/platform/index.mjs';
 import { ensureModelAvailable } from '../lib/ollama.mjs';
 
@@ -30,15 +30,26 @@ async function ensureOllama(config) {
   }
 }
 
-async function waitForTunnel(config) {
+async function waitForTunnel(config, tunnelList = '') {
   const rl = readline.createInterface({ input, output });
   try {
     console.log('\nRun once: cloudflared tunnel login');
-    console.log(`Then:     cloudflared tunnel create ${config.tunnelName}\n`);
+    console.log(`Then:     cloudflared tunnel create ${config.tunnelName}`);
+    if (tunnelList.trim()) {
+      console.log('\nExisting tunnels:');
+      console.log(tunnelList.trim());
+      console.log(`\nIf your tunnel uses a different name, run: cursor-ollama init`);
+    }
+    console.log('');
     await rl.question('Press Enter after tunnel is created...');
   } finally {
     rl.close();
   }
+}
+
+function findTunnelId(tunnelList, tunnelName) {
+  const line = tunnelList.split('\n').find((entry) => entry.includes(tunnelName));
+  return line?.trim().split(/\s+/)[0] || '';
 }
 
 export async function runSetup(options = {}) {
@@ -48,6 +59,11 @@ export async function runSetup(options = {}) {
   }
 
   let config = loadConfig({ local: options.local });
+
+  if (!options.local && !fs.existsSync(getConfigPath())) {
+    console.warn('No ~/.cursor-ollama/config.json found — run cursor-ollama init for tunnel hostname and model names.');
+    console.warn('Continuing with defaults for now...\n');
+  }
 
   if (!config.ollamaAuthKey) {
     config.ollamaAuthKey = generateAuthKey();
@@ -66,15 +82,20 @@ export async function runSetup(options = {}) {
   console.log(`Wrote ${mapPath}`);
 
   if (!options.skipService) {
-    console.log('Installing proxy service...');
-    try {
-      await installProxyService(config);
-    } catch (err) {
-      console.warn(`Proxy service install failed: ${err.message}`);
-      if (process.platform === 'win32') {
-        console.warn(WINDOWS_SERVICE_HINT);
-      } else {
-        console.warn('You can run: cursor-ollama proxy start');
+    if (process.platform === 'win32' && !(await isWindowsAdmin())) {
+      console.log('Skipping proxy service install (Administrator required).');
+      console.log(WINDOWS_SERVICE_HINT);
+    } else {
+      console.log('Installing proxy service...');
+      try {
+        await installProxyService(config);
+      } catch (err) {
+        console.warn(`Proxy service install failed: ${err.message}`);
+        if (process.platform === 'win32') {
+          console.warn(WINDOWS_SERVICE_HINT);
+        } else {
+          console.warn('You can run: cursor-ollama proxy start');
+        }
       }
     }
   }
@@ -91,12 +112,12 @@ export async function runSetup(options = {}) {
     }
 
     if (!tunnelList.includes(config.tunnelName)) {
-      await waitForTunnel(config);
+      await waitForTunnel(config, tunnelList);
+      const refreshed = await runCommand('cloudflared', ['tunnel', 'list']);
+      tunnelList = refreshed.stdout;
     }
 
-    const listResult = await runCommand('cloudflared', ['tunnel', 'list']);
-    const line = listResult.stdout.split('\n').find((l) => l.includes(config.tunnelName));
-    const tunnelId = line?.trim().split(/\s+/)[0];
+    const tunnelId = findTunnelId(tunnelList, config.tunnelName);
     if (!tunnelId) {
       throw new Error(`Could not find tunnel named ${config.tunnelName}`);
     }
@@ -122,10 +143,15 @@ export async function runSetup(options = {}) {
     });
 
     console.log('Installing cloudflared service...');
-    await runCommand('cloudflared', ['--config', tunnelYml, 'service', 'install'], {
-      allowFail: true,
-      inherit: true,
-    });
+    if (process.platform === 'win32' && !(await isWindowsAdmin())) {
+      console.log('Skipping cloudflared service install (Administrator required).');
+      console.log(`Run manually: cursor-ollama tunnel run`);
+    } else {
+      await runCommand('cloudflared', ['--config', tunnelYml, 'service', 'install'], {
+        allowFail: true,
+        inherit: true,
+      });
+    }
   }
 
   await runVerify({ local: options.local });

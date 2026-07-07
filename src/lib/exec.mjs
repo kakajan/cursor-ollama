@@ -5,8 +5,8 @@ const execFileAsync = promisify(execFile);
 
 export function commandExists(cmd) {
   return new Promise((resolve) => {
-    const checker = process.platform === 'win32' ? 'where' : 'which';
-    const child = spawn(checker, [cmd], { stdio: 'ignore', shell: process.platform === 'win32' });
+    const checker = process.platform === 'win32' ? 'where.exe' : 'which';
+    const child = spawn(checker, [cmd], { stdio: 'ignore' });
     child.on('close', (code) => resolve(code === 0));
     child.on('error', () => resolve(false));
   });
@@ -55,13 +55,15 @@ export async function sleep(ms) {
 
 export async function isWindowsAdmin() {
   if (process.platform !== 'win32') return true;
-  const { code } = await runCommand('net', ['session'], { allowFail: true, shell: true });
+  const { code } = await runCommand('net', ['session'], { allowFail: true });
   return code === 0;
 }
 
 export const WINDOWS_SERVICE_HINT =
   'On Windows, service install needs an elevated terminal (Run as Administrator).\n' +
-  '  Foreground instead: cursor-ollama proxy start  +  cursor-ollama tunnel run';
+  '  Easiest: cursor-ollama tray\n' +
+  '  Or: cursor-ollama proxy start  +  cursor-ollama tunnel run\n' +
+  '  Or setup with: cursor-ollama setup --skip-service';
 
 export async function fetchOk(url, options = {}) {
   const res = await fetch(url, options);

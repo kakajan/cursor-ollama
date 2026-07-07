@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { isWindowsAdmin, runCommand, WINDOWS_SERVICE_HINT } from '../exec.mjs';
-import { getPackageRoot, getProxyServerPath } from '../paths.mjs';
+import { getConfigDir, getProxyServerPath } from '../paths.mjs';
 import { getModelsMapPath } from '../config.mjs';
 
 export async function installProxyService(config) {
@@ -12,13 +12,14 @@ export async function installProxyService(config) {
   const node = process.execPath;
   const proxyScript = getProxyServerPath();
   const mapPath = getModelsMapPath();
-  const wrapper = path.join(getPackageRoot(), 'scripts', 'start-proxy.cmd');
+  const wrapperDir = path.join(getConfigDir(), 'scripts');
+  const wrapper = path.join(wrapperDir, 'start-proxy.cmd');
   const content = `@echo off\r\nset MODELS_MAP_PATH=${mapPath}\r\n"${node}" "${proxyScript}"\r\n`;
-  fs.mkdirSync(path.dirname(wrapper), { recursive: true });
+  fs.mkdirSync(wrapperDir, { recursive: true });
   fs.writeFileSync(wrapper, content, 'utf8');
 
   const taskName = 'CursorOllamaProxy';
-  await runCommand('schtasks', ['/Delete', '/TN', taskName, '/F'], { allowFail: true, shell: true });
+  await runCommand('schtasks', ['/Delete', '/TN', taskName, '/F'], { allowFail: true });
   await runCommand(
     'schtasks',
     [
@@ -26,28 +27,26 @@ export async function installProxyService(config) {
       '/TN',
       taskName,
       '/TR',
-      `"${wrapper}"`,
+      wrapper,
       '/SC',
       'ONSTART',
       '/RL',
       'LIMITED',
       '/F',
     ],
-    { shell: true, inherit: true }
+    { inherit: true },
   );
-  await runCommand('schtasks', ['/Run', '/TN', taskName], { shell: true, inherit: true });
+  await runCommand('schtasks', ['/Run', '/TN', taskName], { inherit: true });
   console.log(`Proxy scheduled task installed: ${taskName}`);
 }
 
 export async function stopProxyService() {
-  await runCommand('schtasks', ['/End', '/TN', 'CursorOllamaProxy'], { allowFail: true, shell: true });
+  await runCommand('schtasks', ['/End', '/TN', 'CursorOllamaProxy'], { allowFail: true });
 }
 
 export async function proxyServiceStatus() {
   try {
-    const { stdout } = await runCommand('schtasks', ['/Query', '/TN', 'CursorOllamaProxy', '/FO', 'LIST'], {
-      shell: true,
-    });
+    const { stdout } = await runCommand('schtasks', ['/Query', '/TN', 'CursorOllamaProxy', '/FO', 'LIST']);
     console.log(stdout.trim() || 'CursorOllamaProxy task not found');
   } catch {
     console.log('CursorOllamaProxy task not found');

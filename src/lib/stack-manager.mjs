@@ -40,7 +40,6 @@ function stopProcess(child) {
 
   if (process.platform === 'win32') {
     spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], {
-      shell: true,
       stdio: 'ignore',
     });
   } else {
@@ -142,7 +141,6 @@ export async function startTunnelStack(options = {}) {
   const child = spawn('cloudflared', ['--config', yml, 'tunnel', 'run'], {
     stdio: ['ignore', 'pipe', 'pipe'],
     windowsHide: true,
-    shell: process.platform === 'win32',
   });
 
   attachLogging(child, 'tunnel');

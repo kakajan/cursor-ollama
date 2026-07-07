@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { ensureConfigDir, getModelsMapPath } from './paths.mjs';
+import { ensureConfigDir, getConfigDir, getModelsMapPath } from './paths.mjs';
 
 export function buildModelsMap(config) {
   const authKey = config.ollamaAuthKey || 'ollama';
@@ -24,12 +24,18 @@ export function buildModelsMap(config) {
 
 export function writeModelsMap(config, options = {}) {
   const map = buildModelsMap(config);
-  const mapPath = options.path || getModelsMapPath(options.local);
+  let mapPath = options.path;
 
-  if (mapPath.includes(path.join(process.cwd(), 'config'))) {
-    fs.mkdirSync(path.dirname(mapPath), { recursive: true });
+  if (!mapPath) {
+    if (options.local) {
+      mapPath = path.join(process.cwd(), 'config', 'models.map.json');
+      fs.mkdirSync(path.dirname(mapPath), { recursive: true });
+    } else {
+      ensureConfigDir();
+      mapPath = path.join(getConfigDir(), 'models.map.json');
+    }
   } else {
-    ensureConfigDir();
+    fs.mkdirSync(path.dirname(mapPath), { recursive: true });
   }
 
   fs.writeFileSync(mapPath, `${JSON.stringify(map, null, 2)}\n`, 'utf8');

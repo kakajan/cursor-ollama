@@ -22,16 +22,9 @@ export function getModelsMapPath(local = false) {
     return process.env.MODELS_MAP_PATH;
   }
   if (local) {
-    const localPath = path.join(process.cwd(), 'config', 'models.map.json');
-    if (fs.existsSync(localPath)) {
-      return localPath;
-    }
+    return path.join(process.cwd(), 'config', 'models.map.json');
   }
-  const homePath = path.join(getConfigDir(), 'models.map.json');
-  if (fs.existsSync(homePath)) {
-    return homePath;
-  }
-  return path.join(getPackageRoot(), 'config', 'models.map.json');
+  return path.join(getConfigDir(), 'models.map.json');
 }
 
 export function getTunnelTemplatePath() {
