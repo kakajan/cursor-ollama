@@ -19,6 +19,7 @@ export const DEFAULTS = {
   secureTunnel: true,
   modelAliasStrategy: 'proxy-rewrite',
   cloudflaredDir: '~/.cloudflared',
+  skipModelPull: false,
 };
 
 function parseEnvFile(content) {
@@ -47,6 +48,7 @@ function envToConfig(env) {
     secureTunnel: env.SECURE_TUNNEL !== 'false',
     modelAliasStrategy: env.MODEL_ALIAS_STRATEGY || DEFAULTS.modelAliasStrategy,
     cloudflaredDir: expandHome(env.CLOUDFLARED_DIR || DEFAULTS.cloudflaredDir),
+    skipModelPull: env.SKIP_MODEL_PULL === 'true',
   };
 }
 
@@ -62,6 +64,7 @@ function normalizeConfig(raw = {}) {
     secureTunnel: raw.secureTunnel !== false,
     modelAliasStrategy: raw.modelAliasStrategy || DEFAULTS.modelAliasStrategy,
     cloudflaredDir: expandHome(raw.cloudflaredDir || DEFAULTS.cloudflaredDir),
+    skipModelPull: raw.skipModelPull === true,
   };
 }
 

@@ -8,6 +8,7 @@ import { runVerify } from './verify.mjs';
 import { runCommand, fetchOk, sleep } from '../lib/exec.mjs';
 import { getTunnelTemplatePath } from '../lib/paths.mjs';
 import { installProxyService } from '../lib/platform/index.mjs';
+import { ensureModelAvailable } from '../lib/ollama.mjs';
 
 function renderTunnelConfig(template, values) {
   return template
@@ -56,8 +57,10 @@ export async function runSetup(options = {}) {
   console.log('Checking Ollama...');
   await ensureOllama(config);
 
-  console.log(`Pulling model ${config.ollamaSourceModel}...`);
-  await runCommand('ollama', ['pull', config.ollamaSourceModel], { inherit: true });
+  await ensureModelAvailable(config, {
+    skipPull: options.skipPull === true || config.skipModelPull === true,
+    inherit: true,
+  });
 
   const { mapPath } = writeModelsMap(config, { local: options.local });
   console.log(`Wrote ${mapPath}`);

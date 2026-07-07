@@ -1,6 +1,6 @@
 {
   "name": "cursor-ollama",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Cloudflare Tunnel + Ollama proxy CLI for Cursor IDE (Strategy C: auth + model rewrite)",
   "type": "module",
   "private": false,
@@ -28,7 +28,7 @@
   },
   "scripts": {
     "start": "node config/proxy/server.mjs",
-    "test": "node --test config/proxy/server.test.mjs test/integration.test.mjs test/cli-config.test.mjs",
+    "test": "node --test config/proxy/server.test.mjs test/integration.test.mjs test/cli-config.test.mjs test/ollama-models.test.mjs",
     "test:unit": "node --test config/proxy/server.test.mjs test/cli-config.test.mjs",
     "test:integration": "node --test test/integration.test.mjs",
     "prepublishOnly": "npm test"

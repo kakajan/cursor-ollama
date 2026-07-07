@@ -35,6 +35,7 @@ export async function runCli(argv) {
     .option('--local', 'Use ./.env and ./config from current directory')
     .option('--skip-tunnel', 'Skip cloudflared tunnel setup')
     .option('--skip-service', 'Skip OS proxy service install')
+    .option('--skip-pull', 'Skip ollama pull; require model already installed locally')
     .action(async (opts) => {
       await runSetup(opts);
     });

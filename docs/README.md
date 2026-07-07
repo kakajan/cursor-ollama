@@ -15,7 +15,8 @@ Maintained by [@kakajan](https://github.com/kakajan) · **AYTRONIC CO** · [ushe
 |------|---------|
 | [`docs/index.html`](index.html) | Landing page |
 | [`docs/seo.json`](seo.json) | Central SEO config |
-| [`docs/og-image.png`](og-image.png) | Open Graph / Twitter card (1200×630) |
+| [`docs/og-image.webp`](og-image.webp) | Open Graph / Twitter card (WebP) |
+| [`docs/social-preview.webp`](social-preview.webp) | GitHub social preview (1280×640, WebP) |
 | [`docs/robots.txt`](robots.txt) | Crawler rules + sitemap |
 | [`docs/sitemap.xml`](sitemap.xml) | Sitemap |
 
@@ -28,6 +29,7 @@ Maintained by [@kakajan](https://github.com/kakajan) · **AYTRONIC CO** · [ushe
 ## SEO checklist
 
 - [x] Canonical URL: `https://kakajan.github.io/cursor-ollama/`
-- [x] OG image: `https://kakajan.github.io/cursor-ollama/og-image.png`
+- [x] OG image: `https://kakajan.github.io/cursor-ollama/og-image.webp`
+- [x] GitHub social preview: [`docs/social-preview.webp`](social-preview.webp) (1280×640) — upload in repo **Settings → General → Social preview**
 - [ ] Verify OG preview: [opengraph.xyz](https://www.opengraph.xyz/)
 - [ ] Submit sitemap in Google Search Console

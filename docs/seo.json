@@ -24,16 +24,22 @@
     "locale": "en_US",
     "title": "cursor-ollama — Local Ollama for Cursor IDE",
     "description": "Connect Ollama to Cursor via Cloudflare Tunnel. npm CLI with auth proxy and model mapping by AYTRONIC CO.",
-    "image": "og-image.png",
+    "image": "og-image.webp",
     "imageWidth": 1200,
     "imageHeight": 630,
     "imageAlt": "cursor-ollama CLI connecting Cursor IDE to local Ollama through Cloudflare Tunnel"
+  },
+  "socialPreview": {
+    "image": "social-preview.webp",
+    "width": 1280,
+    "height": 640,
+    "imageAlt": "cursor-ollama — Local Ollama for Cursor IDE via Cloudflare Tunnel"
   },
   "twitter": {
     "card": "summary_large_image",
     "title": "cursor-ollama — Local Ollama for Cursor IDE",
     "description": "npm CLI: Cloudflare Tunnel + Ollama proxy for Cursor. Bearer auth and model rewrite built in.",
-    "image": "og-image.png",
+    "image": "og-image.webp",
     "creator": "@kakajan"
   },
   "structuredData": {
