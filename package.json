@@ -1,6 +1,6 @@
 {
   "name": "cursor-ollama",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Cloudflare Tunnel + Ollama proxy CLI for Cursor IDE (Strategy C: auth + model rewrite)",
   "type": "module",
   "private": false,

@@ -58,3 +58,15 @@ The workflow at [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) 
 - [x] Sitemap and robots file
 - [ ] Verify social preview with [opengraph.xyz](https://www.opengraph.xyz/)
 - [ ] Submit sitemap in Google Search Console
+
+## فارسی
+
+این پوشه صفحه لندینگ عمومی cursor-ollama را نگه می‌دارد. زبان اصلی صفحه انگلیسی است، اما متن فارسی هم باید کامل، روان و طبیعی بماند.
+
+هنگام تغییر محتوا:
+
+- اول پیام انگلیسی را به‌روز کنید.
+- متن فارسی را ترجمه خشک نکنید؛ مثل توضیح یک برنامه‌نویس برای برنامه‌نویس دیگر بنویسید.
+- ادعاهای حساس مثل privacy، رایگان بودن و مسیر OpenAI را دقیق نگه دارید.
+- دعوت به مشارکت و حمایت را دوستانه بنویسید: star، issue، pull request، اصلاح مستندات و معرفی پروژه.
+- اگر متن visible عوض شد، `i18n.js`، `index.html`، `seo.json` و در صورت نیاز `../README.md` را با هم sync کنید.

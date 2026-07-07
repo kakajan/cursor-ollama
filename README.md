@@ -2,13 +2,14 @@
 
 ![CI](https://github.com/kakajan/cursor-ollama/actions/workflows/ci.yml/badge.svg)
 
-cursor-ollama یک ابزار آزاد و متن‌باز است برای وقتی که می‌خواهید مدل‌های محلی [Ollama](https://ollama.com) را داخل [Cursor IDE](https://cursor.com) استفاده کنید، بدون درگیری با تنظیمات تونل، نام مدل‌ها و پروکسی.
+cursor-ollama is a free, open-source CLI that connects local [Ollama](https://ollama.com) models to [Cursor IDE](https://cursor.com) through a secure Cloudflare Tunnel and a small OpenAI-compatible proxy.
 
-من این پروژه را چون خودم به آن نیاز داشتم ساختم: یک مسیر ساده، قابل فهم و قابل تکرار برای وصل کردن Cursor به Ollama. اگر فقط می‌خواهید سریع راه بیفتید، ویزارد ویندوز کار را قدم‌به‌قدم جلو می‌برد. اگر اهل ترمینال هستید، همه چیز با CLI هم در دسترس است.
+I built it because I wanted local models in Cursor without repeating the same fragile tunnel setup every time. The goal is simple: install it, run a friendly wizard, paste a few values into Cursor, and get back to building.
 
-**Landing page:** [kakajan.github.io/cursor-ollama](https://kakajan.github.io/cursor-ollama)
-**Package:** [npmjs.com/package/cursor-ollama](https://www.npmjs.com/package/cursor-ollama)
-**License:** MIT
+- **Landing page:** [kakajan.github.io/cursor-ollama](https://kakajan.github.io/cursor-ollama)
+- **Package:** [npmjs.com/package/cursor-ollama](https://www.npmjs.com/package/cursor-ollama)
+- **License:** MIT
+- **فارسی:** [راهنمای فارسی](#راهنمای-فارسی)
 
 ```bash
 npm i -g cursor-ollama
@@ -17,60 +18,57 @@ cursor-ollama wizard
 
 ## What It Does
 
-Cursor برای بعضی قابلیت‌ها از بک‌اند ابری خودش استفاده می‌کند و مستقیم به `localhost` شما دسترسی ندارد. cursor-ollama یک آدرس HTTPS قابل استفاده در Cursor می‌سازد و درخواست‌ها را با احراز هویت به Ollama محلی شما می‌رساند.
-
-مسیر کلی این است:
+Cursor can use OpenAI-compatible endpoints, but some Cursor flows cannot simply reach `localhost` on your machine. cursor-ollama gives Cursor a public HTTPS `/v1` endpoint, protects it with Bearer auth, and forwards requests to your local Ollama server.
 
 ```text
 Cursor -> Cloudflare Tunnel -> cursor-ollama proxy -> Ollama
 ```
 
-چند کار مهم را هم خودش انجام می‌دهد:
+It handles the boring parts for you:
 
-- ساخت پروکسی امن با Bearer token
-- بازنویسی نام مدل‌ها تا Cursor نام مدل را قبول کند
-- پشتیبانی از Cloudflare Tunnel با دامنه شخصی یا لینک موقت trycloudflare
-- ویزارد گرافیکی برای ویندوز
-- tray برای start/stop، کپی لینک، تنظیمات و refresh لینک موقت
-- health check و دستور verify برای پیدا کردن مشکل قبل از رفتن سراغ Cursor
+- Secure proxy with Bearer token validation
+- Cursor-friendly model aliases mapped to real Ollama models
+- Cloudflare named tunnel or temporary trycloudflare quick tunnel
+- Windows browser wizard for first-time setup
+- System tray for start/stop, settings, quick URL refresh, and copy-paste config
+- Health checks before you paste settings into Cursor
+- Clean uninstall path for shortcuts, tray files, and services
 
 ## Requirements
 
-قبل از شروع این‌ها را لازم دارید:
-
-| Tool | Why |
-|------|-----|
-| [Node.js 18+](https://nodejs.org) | اجرای CLI، wizard، proxy و tray |
-| [Ollama](https://ollama.com/download) | اجرای مدل‌های محلی روی سیستم شما |
-| [cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) | ساخت تونل HTTPS برای Cursor |
-| Cloudflare domain | اختیاری است؛ اگر دامنه ندارید از حالت quick و لینک موقت trycloudflare استفاده کنید |
+| Tool | Why You Need It |
+|------|------------------|
+| [Node.js 18+](https://nodejs.org) | Runs the CLI, wizard, proxy, and tray |
+| [Ollama](https://ollama.com/download) | Runs your local models |
+| [cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) | Creates the HTTPS tunnel Cursor can reach |
+| Cloudflare domain | Optional. Use quick mode if you do not have one |
 
 ## Quick Start
 
-### Windows, The Friendly Way
+### Windows Wizard
 
 ```powershell
 npm install -g cursor-ollama
 cursor-ollama wizard
 ```
 
-ویزارد مرورگر را باز می‌کند و آرام جلو می‌رود:
+The wizard walks you through:
 
-1. چک می‌کند Node، Ollama و cloudflared نصب باشند.
-2. می‌پرسد دامنه Cloudflare دارید یا لینک موقت می‌خواهید.
-3. پورت‌های Ollama و proxy را تنظیم می‌کند.
-4. مدل واقعی Ollama و نامی که Cursor باید ببیند را می‌گیرد.
-5. shortcut، اجرای خودکار ویندوز و tray را تنظیم می‌کند.
-6. در پایان یک block آماده برای Cursor Settings می‌دهد.
+1. Checking Node.js, Ollama, and cloudflared
+2. Choosing a tunnel mode: your Cloudflare domain or a temporary trycloudflare URL
+3. Setting Ollama and proxy ports
+4. Choosing the real Ollama model and the model alias Cursor should see
+5. Creating shortcuts, optional Windows startup, and launching the tray
+6. Showing the Cursor settings block you can copy
 
-اگر پروژه را clone کرده‌اید، این فایل‌ها هم برای اجرای سریع وجود دارند:
+After clone/install, these launchers are also available:
 
 ```cmd
 bin\Cursor-Ollama-Wizard.cmd
 bin\Cursor-Ollama-Tray.cmd
 ```
 
-### CLI, All Platforms
+### CLI Path, All Platforms
 
 ```bash
 npm install -g cursor-ollama
@@ -88,48 +86,59 @@ cursor-ollama cursor-config
 cursor-ollama verify
 ```
 
-اگر دامنه Cloudflare ندارید، در init یا wizard حالت quick را انتخاب کنید. در این حالت یک لینک موقت شبیه `https://something.trycloudflare.com/v1` می‌گیرید. هر وقت لینک را refresh کردید باید Base URL را در Cursor هم به‌روز کنید.
+If you do not have a Cloudflare domain, choose quick mode. It gives you a temporary URL like:
+
+```text
+https://random.trycloudflare.com/v1
+```
+
+Quick URLs can change. When you refresh the link, update the Base URL in Cursor too.
 
 ## Connect Cursor
 
-بعد از اینکه `cursor-ollama verify` موفق شد:
+After `cursor-ollama verify` passes:
 
-1. در Cursor بروید به `Settings -> Models`.
-2. بخش OpenAI-compatible یا BYOK را باز کنید.
-3. `Override OpenAI Base URL` را فعال کنید.
-4. Base URL را بگذارید روی آدرس تونل، مثلا:
+1. Open `Cursor Settings -> Models`.
+2. Enable `Override OpenAI Base URL` in the OpenAI-compatible/BYOK section.
+3. Paste your tunnel URL as the Base URL. It must end with `/v1`.
+4. Use the generated Bearer key as the API key.
+5. Add the model alias you selected, for example `gpt-4-turbo` or `gpt-4o-mini`.
 
-```text
-https://YOUR-TUNNEL-HOST/v1
-```
-
-5. API Key همان `ollamaAuthKey` داخل config است. دستور زیر آن را آماده چاپ می‌کند:
+You can print the exact values anytime:
 
 ```bash
 cursor-ollama cursor-config
 ```
 
-6. نام مدلی را که انتخاب کرده‌اید اضافه کنید؛ مثلا `gpt-4-turbo` یا `gpt-4o-mini`. این فقط alias است و داخل سیستم شما به مدل واقعی Ollama map می‌شود.
+Example:
+
+```text
+Base URL: https://YOUR-TUNNEL-HOST/v1
+API Key:  from cursor-ollama cursor-config
+Model:    gpt-4-turbo
+```
+
+The model name is only an alias Cursor accepts. The proxy rewrites it to the real Ollama model you configured.
 
 ## Daily Use
 
-برای استفاده روزمره معمولاً همین کافی است:
+Most days, start the tray and use its menu:
 
 ```bash
 cursor-ollama tray
 ```
 
-از tray می‌توانید:
+From the tray you can:
 
-- proxy و tunnel را start/stop کنید.
-- Base URL را برای Cursor کپی کنید.
-- لینک quick tunnel را refresh کنید.
-- پورت‌ها و حالت tunnel را از Settings تغییر دهید.
-- فایل config را باز کنید.
-- وضعیت stack را ببینید.
-- uninstall تمیز انجام دهید.
+- Start or stop proxy and tunnel
+- Copy the Cursor Base URL
+- Refresh a quick tunnel URL
+- Open Settings
+- Open the config file
+- Show Cursor config
+- Uninstall cleanly
 
-اگر tray نمی‌خواهید:
+If you prefer terminal commands:
 
 ```bash
 cursor-ollama stack start
@@ -139,24 +148,24 @@ cursor-ollama stack stop
 
 ## Commands
 
-| Command | Use |
-|---------|-----|
-| `cursor-ollama wizard` | ویزارد گرافیکی، مخصوصاً راحت برای ویندوز |
-| `cursor-ollama init` | راه‌اندازی تعاملی در ترمینال |
-| `cursor-ollama doctor` | بررسی نصب بودن پیش‌نیازها |
-| `cursor-ollama setup` | ساخت config، tunnel، proxy و mapping مدل |
-| `cursor-ollama verify` | تست سلامت Ollama، proxy و tunnel |
-| `cursor-ollama cursor-config` | چاپ تنظیمات آماده برای Cursor |
-| `cursor-ollama tray` | اجرای tray در پس‌زمینه |
-| `cursor-ollama settings` | صفحه تنظیمات پورت، tunnel و لینک quick |
-| `cursor-ollama proxy start` | اجرای proxy در foreground |
-| `cursor-ollama proxy install` | نصب proxy به عنوان service |
-| `cursor-ollama tunnel run` | اجرای tunnel در foreground |
-| `cursor-ollama tunnel install` | نصب cloudflared به عنوان service |
-| `cursor-ollama stack start` | روشن کردن proxy و tunnel با هم |
-| `cursor-ollama uninstall` | حذف tray، shortcut و serviceها |
+| Command | What It Does |
+|---------|--------------|
+| `cursor-ollama wizard` | Opens the browser setup wizard |
+| `cursor-ollama init` | Interactive terminal setup |
+| `cursor-ollama doctor` | Checks required tools |
+| `cursor-ollama setup` | Writes config, model mapping, proxy, and tunnel setup |
+| `cursor-ollama verify` | Tests Ollama, proxy, and tunnel health |
+| `cursor-ollama cursor-config` | Prints the Cursor settings block |
+| `cursor-ollama tray` | Starts the tray in the background |
+| `cursor-ollama settings` | Opens settings for ports, tunnel mode, and quick URLs |
+| `cursor-ollama proxy start` | Runs the proxy in the foreground |
+| `cursor-ollama proxy install` | Installs the proxy service |
+| `cursor-ollama tunnel run` | Runs cloudflared in the foreground |
+| `cursor-ollama tunnel install` | Installs the tunnel service |
+| `cursor-ollama stack start` | Starts proxy and tunnel together |
+| `cursor-ollama uninstall` | Removes tray, shortcuts, and services |
 
-فلگ‌های کاربردی:
+Useful flags:
 
 ```bash
 cursor-ollama setup --skip-pull
@@ -170,36 +179,36 @@ cursor-ollama uninstall --keep-config
 
 ### Named Tunnel
 
-اگر دامنه‌ای روی Cloudflare DNS دارید، این حالت تمیزتر و پایدارتر است:
+Use this when you own a domain on Cloudflare DNS:
 
 ```text
 https://ollama.example.com/v1
 ```
 
-cursor-ollama فایل tunnel را طوری می‌نویسد که ترافیک به proxy روی `127.0.0.1:11435` برسد، نه مستقیم به Ollama.
+cursor-ollama writes the tunnel config so traffic goes to the local proxy on `127.0.0.1:11435`, not directly to Ollama.
 
 ### Quick Tunnel
 
-اگر فقط می‌خواهید سریع تست کنید یا هنوز دامنه ندارید، quick mode را انتخاب کنید. cloudflared یک لینک موقت می‌سازد:
+Use this when you want to try the project without a domain:
 
 ```text
 https://random.trycloudflare.com/v1
 ```
 
-این لینک دائمی نیست. اگر refresh شد یا از کار افتاد، از tray یا Settings لینک جدید را کپی کنید و در Cursor جایگزین کنید.
+It is fast and friendly for testing, but the URL is temporary. Copy or refresh it from the tray or Settings page.
 
 ## Configuration
 
-در نصب معمولی فایل‌ها اینجا ذخیره می‌شوند:
+Default config files:
 
 | File | Purpose |
 |------|---------|
-| `~/.cursor-ollama/config.json` | تنظیمات اصلی |
-| `~/.cursor-ollama/models.map.json` | map نام Cursor به مدل واقعی Ollama |
-| `~/.cursor-ollama/tray.pid` | جلوگیری از اجرای چند tray همزمان |
-| `~/.cloudflared/<name>-tunnel.yml` | config تونل named |
+| `~/.cursor-ollama/config.json` | Main settings |
+| `~/.cursor-ollama/models.map.json` | Cursor aliases mapped to Ollama models |
+| `~/.cursor-ollama/tray.pid` | Prevents duplicate tray instances |
+| `~/.cloudflared/<name>-tunnel.yml` | Named tunnel config |
 
-نمونه config:
+Example:
 
 ```json
 {
@@ -219,19 +228,19 @@ https://random.trycloudflare.com/v1
 
 ## Troubleshooting
 
-| Problem | Try This |
-|---------|----------|
-| Cursor says `AI Model Not Found` | نام مدل را در `models.map.json` و Cursor یکی کنید. aliasهای رایج مثل `gpt-4o` و dated variants هم rewrite می‌شوند. |
-| `401 Unauthorized` | کلید داخل Cursor باید با `ollamaAuthKey` یکی باشد. |
-| Tunnel is off | اول proxy را روشن کنید، بعد tunnel را. `cursor-ollama stack start` و سپس `cursor-ollama verify` را بزنید. |
-| Quick tunnel expired | از tray یا Settings لینک را refresh کنید و Base URL جدید را در Cursor بگذارید. |
-| Port changed | از Settings ذخیره کنید، بعد `Stop all` و `Start all`. |
-| Cloudflare `Error 1033` | tunnel وصل نیست یا DNS به tunnel اشتباه اشاره می‌کند. |
-| Built-in Cursor models broken | وقتی می‌خواهید از مدل‌های خود Cursor استفاده کنید، Override Base URL را خاموش کنید. |
+| Problem | What To Try |
+|---------|-------------|
+| `AI Model Not Found` | Make sure Cursor uses the same alias stored in `models.map.json`. |
+| `401 Unauthorized` | The Cursor API key must match `ollamaAuthKey`. |
+| Tunnel is off | Start proxy first, then tunnel. Run `cursor-ollama stack start` and `cursor-ollama verify`. |
+| Quick tunnel expired | Refresh the link from tray or Settings and update Cursor Base URL. |
+| Port changed | Save settings, then stop and start the stack. |
+| Cloudflare `Error 1033` | The tunnel is disconnected or DNS points to the wrong tunnel. |
+| Built-in Cursor models stop working | Turn off Override Base URL when you want to use Cursor-native models. |
 
 ## Privacy Note
 
-cursor-ollama باعث می‌شود درخواست مدل به Ollama محلی شما برسد و هزینه OpenAI ندهید، اما Cursor همچنان ممکن است برای تجربه IDE از سرویس‌های خودش استفاده کند. اگر دنبال حریم خصوصی کامل هستید، قبل از ارسال کد حساس، رفتار نسخه فعلی Cursor و تنظیمات حریم خصوصی‌تان را بررسی کنید.
+cursor-ollama routes model requests to your local Ollama through your tunnel, so those routed requests do not bill OpenAI tokens. Still, Cursor is an IDE with its own cloud features. Before sending sensitive code, review Cursor's current privacy settings and your own security requirements.
 
 ## Development
 
@@ -246,7 +255,7 @@ npm test
 npm pack --dry-run
 ```
 
-Build installer for Windows:
+Build the Windows installer:
 
 ```powershell
 npm run build:win
@@ -256,28 +265,91 @@ powershell -ExecutionPolicy Bypass -File installer/windows/build.ps1
 
 ## Support And Contribute
 
-این پروژه با علاقه ساخته شده و آزاد منتشر شده تا هر کسی بتواند از آن استفاده کند، یاد بگیرد، تغییرش دهد و بهترش کند.
+This project is built with care and released openly so other developers can use it, learn from it, and make it better.
 
-اگر cursor-ollama به کارتان آمد:
+If cursor-ollama saves you time:
 
-- در GitHub ستاره بدهید تا پروژه راحت‌تر دیده شود.
-- اگر باگی دیدید، issue باز کنید و تا جای ممکن log و سیستم‌عامل را بنویسید.
-- اگر ایده یا بهبود دارید، pull request بفرستید.
-- اگر مستندات جایی نامفهوم بود، همان هم یک contribution ارزشمند است.
-- پروژه را به کسی که با Cursor و Ollama کار می‌کند معرفی کنید.
+- Star the repository so more people can find it.
+- Open an issue when something breaks, and include logs, OS, and the command you ran.
+- Send a pull request for bugs, docs, translations, tests, or UX polish.
+- Share it with someone trying to use local models in Cursor.
 
-من دوست دارم این ابزار ساده بماند: کاری که قول می‌دهد را انجام دهد، بی‌دردسر نصب شود، و اگر مشکلی پیش آمد با پیام و راهنمای روشن کمک کند. مشارکت شما دقیقاً به همین بهتر شدن کمک می‌کند.
+I want this tool to stay simple: do the job, explain itself, and help when something goes wrong. Every thoughtful contribution helps.
 
 ## Documentation Map
 
 | File | Purpose |
 |------|---------|
-| [`docs/index.html`](docs/index.html) | landing page دو زبانه |
-| [`docs/i18n.js`](docs/i18n.js) | متن‌های انگلیسی و فارسی landing |
-| [`docs/seo.json`](docs/seo.json) | تنظیمات SEO و social preview |
-| [`docs/README.md`](docs/README.md) | راهنمای نگهداری landing و GitHub Pages |
-| [`installer/wizard/`](installer/wizard/) | سورس UI ویزارد |
-| [`assets/`](assets/) | لوگو و آیکن‌ها |
+| [`docs/index.html`](docs/index.html) | Bilingual landing page shell |
+| [`docs/i18n.js`](docs/i18n.js) | English and Persian landing copy |
+| [`docs/seo.json`](docs/seo.json) | SEO and social preview metadata |
+| [`docs/README.md`](docs/README.md) | Landing and SEO maintenance guide |
+| [`installer/wizard/`](installer/wizard/) | Wizard UI source |
+| [`assets/`](assets/) | Logos and icons |
+
+## راهنمای فارسی
+
+cursor-ollama یک ابزار رایگان و متن‌باز است برای وصل کردن مدل‌های محلی Ollama به Cursor. ایده‌اش ساده است: یک آدرس HTTPS امن می‌سازد، درخواست‌های Cursor را با یک پروکسی کوچک و Bearer auth می‌گیرد، نام مدل را به مدل واقعی Ollama تبدیل می‌کند و همه چیز را به سیستم خودتان می‌رساند.
+
+من این ابزار را چون خودم به آن نیاز داشتم ساختم؛ با این هدف که راه‌اندازی Ollama در Cursor از یک کار شکننده و تکراری به یک مسیر ساده و قابل اعتماد تبدیل شود.
+
+### شروع سریع
+
+در ویندوز راحت‌ترین مسیر ویزارد است:
+
+```powershell
+npm install -g cursor-ollama
+cursor-ollama wizard
+```
+
+ویزارد پیش‌نیازها را بررسی می‌کند، نوع تونل را می‌پرسد، مدل Ollama و نام قابل قبول برای Cursor را می‌گیرد، shortcut و tray می‌سازد و در پایان تنظیمات آماده Cursor را نشان می‌دهد.
+
+اگر با ترمینال راحت‌ترید:
+
+```bash
+cursor-ollama doctor
+cursor-ollama init
+cursor-ollama setup
+cursor-ollama tray
+cursor-ollama verify
+cursor-ollama cursor-config
+```
+
+### بدون دامنه Cloudflare
+
+اگر دامنه ندارید، حالت quick را انتخاب کنید. یک لینک موقت مثل این می‌گیرید:
+
+```text
+https://random.trycloudflare.com/v1
+```
+
+این لینک دائمی نیست. هر وقت refresh شد، باید Base URL جدید را در Cursor وارد کنید.
+
+### اتصال به Cursor
+
+بعد از اینکه `cursor-ollama verify` موفق شد:
+
+1. به `Cursor Settings -> Models` بروید.
+2. گزینه `Override OpenAI Base URL` را فعال کنید.
+3. آدرس تونل را با `/v1` وارد کنید.
+4. کلید Bearer را از `cursor-ollama cursor-config` بردارید.
+5. نام alias مدل را اضافه کنید، مثلاً `gpt-4-turbo`.
+
+### استفاده روزمره
+
+```bash
+cursor-ollama tray
+```
+
+از tray می‌توانید stack را روشن و خاموش کنید، URL را کپی کنید، لینک quick را refresh کنید، Settings را باز کنید و config را ببینید.
+
+### حریم خصوصی
+
+درخواست مدل از مسیر تونل شما به Ollama محلی می‌رسد و برای این درخواست‌ها توکن OpenAI مصرف نمی‌شود. با این حال Cursor همچنان یک IDE با قابلیت‌های ابری است. قبل از ارسال کد حساس، تنظیمات حریم خصوصی Cursor و نیازهای امنیتی خودتان را بررسی کنید.
+
+### حمایت و مشارکت
+
+اگر این ابزار به کارتان آمد، با یک star در GitHub، گزارش باگ، اصلاح مستندات، pull request یا معرفی پروژه به یک برنامه‌نویس دیگر کمک بزرگی می‌کنید. ابزارهای متن‌باز با همین مشارکت‌های کوچک زنده می‌مانند.
 
 ## License
 
