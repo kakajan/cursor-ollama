@@ -1,0 +1,126 @@
+import fs from 'node:fs';
+import readline from 'node:readline/promises';
+import { stdin as input, stdout as output } from 'node:process';
+import { loadConfig, saveConfig, generateAuthKey } from '../lib/config.mjs';
+import { writeModelsMap } from '../lib/models-map.mjs';
+import { runDoctor } from './doctor.mjs';
+import { runVerify } from './verify.mjs';
+import { runCommand, fetchOk, sleep } from '../lib/exec.mjs';
+import { getTunnelTemplatePath } from '../lib/paths.mjs';
+import { installProxyService } from '../lib/platform/index.mjs';
+
+function renderTunnelConfig(template, values) {
+  return template
+    .replace(/\{\{TUNNEL_ID\}\}/g, values.tunnelId)
+    .replace(/\{\{CREDENTIALS_FILE\}\}/g, values.credentialsFile.replace(/\\/g, '/'))
+    .replace(/\{\{TUNNEL_HOSTNAME\}\}/g, values.tunnelHostname)
+    .replace(/\{\{PROXY_PORT\}\}/g, String(values.proxyPort));
+}
+
+async function ensureOllama(config) {
+  try {
+    await fetchOk(`http://127.0.0.1:${config.ollamaPort}/api/tags`);
+    return;
+  } catch {
+    console.log('Starting Ollama...');
+    await runCommand('ollama', ['serve'], { allowFail: true });
+    await sleep(3000);
+    await fetchOk(`http://127.0.0.1:${config.ollamaPort}/api/tags`);
+  }
+}
+
+async function waitForTunnel(config) {
+  const rl = readline.createInterface({ input, output });
+  try {
+    console.log('\nRun once: cloudflared tunnel login');
+    console.log(`Then:     cloudflared tunnel create ${config.tunnelName}\n`);
+    await rl.question('Press Enter after tunnel is created...');
+  } finally {
+    rl.close();
+  }
+}
+
+export async function runSetup(options = {}) {
+  const ok = await runDoctor();
+  if (!ok) {
+    throw new Error('Prerequisites missing. Run cursor-ollama doctor for details.');
+  }
+
+  let config = loadConfig({ local: options.local });
+
+  if (!config.ollamaAuthKey) {
+    config.ollamaAuthKey = generateAuthKey();
+    config = saveConfig(config);
+  }
+
+  console.log('Checking Ollama...');
+  await ensureOllama(config);
+
+  console.log(`Pulling model ${config.ollamaSourceModel}...`);
+  await runCommand('ollama', ['pull', config.ollamaSourceModel], { inherit: true });
+
+  const { mapPath } = writeModelsMap(config, { local: options.local });
+  console.log(`Wrote ${mapPath}`);
+
+  if (!options.skipService) {
+    console.log('Installing proxy service...');
+    try {
+      await installProxyService(config);
+    } catch (err) {
+      console.warn(`Proxy service install failed: ${err.message}`);
+      console.warn('You can run: cursor-ollama proxy start');
+    }
+  }
+
+  if (!options.skipTunnel) {
+    fs.mkdirSync(config.cloudflaredDir, { recursive: true });
+
+    let tunnelList = '';
+    try {
+      const result = await runCommand('cloudflared', ['tunnel', 'list']);
+      tunnelList = result.stdout;
+    } catch {
+      /* empty */
+    }
+
+    if (!tunnelList.includes(config.tunnelName)) {
+      await waitForTunnel(config);
+    }
+
+    const listResult = await runCommand('cloudflared', ['tunnel', 'list']);
+    const line = listResult.stdout.split('\n').find((l) => l.includes(config.tunnelName));
+    const tunnelId = line?.trim().split(/\s+/)[0];
+    if (!tunnelId) {
+      throw new Error(`Could not find tunnel named ${config.tunnelName}`);
+    }
+
+    const creds = `${config.cloudflaredDir}/${tunnelId}.json`;
+    const tunnelYml = `${config.cloudflaredDir}/${config.tunnelName}-tunnel.yml`;
+    const template = fs.readFileSync(getTunnelTemplatePath(), 'utf8');
+    fs.writeFileSync(
+      tunnelYml,
+      renderTunnelConfig(template, {
+        tunnelId,
+        credentialsFile: creds,
+        tunnelHostname: config.tunnelHostname,
+        proxyPort: config.proxyPort,
+      }),
+      'utf8'
+    );
+    console.log(`Wrote tunnel config: ${tunnelYml}`);
+
+    await runCommand('cloudflared', ['tunnel', 'route', 'dns', config.tunnelName, config.tunnelHostname], {
+      allowFail: true,
+      inherit: true,
+    });
+
+    console.log('Installing cloudflared service...');
+    await runCommand('cloudflared', ['--config', tunnelYml, 'service', 'install'], {
+      allowFail: true,
+      inherit: true,
+    });
+  }
+
+  await runVerify({ local: options.local });
+  console.log('Setup complete.');
+}

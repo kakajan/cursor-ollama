@@ -1,0 +1,10 @@
+.env
+node_modules/
+config/models.map.json
+*.log
+.DS_Store
+Thumbs.db
+
+# Cloudflare tunnel credentials (keep in ~/.cloudflared only)
+*-credentials.json
+*.credentials.json

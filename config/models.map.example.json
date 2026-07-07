@@ -1,0 +1,20 @@
+{
+  "strategy": "proxy-rewrite",
+  "cursorApiKey": "${OLLAMA_AUTH_KEY}",
+  "cursorBaseUrl": "https://YOUR-TUNNEL-HOST/v1",
+  "proxyPort": 11435,
+  "ollamaPort": 11434,
+  "secureTunnel": true,
+  "mappings": [
+    {
+      "cursorName": "gpt-4o-mini",
+      "ollamaName": "qwen2.5-coder:7b",
+      "recommendedFor": "chat, cmd+k"
+    },
+    {
+      "cursorName": "gpt-4o",
+      "ollamaName": "deepseek-coder-v2:16b",
+      "recommendedFor": "chat, cmd+k (optional second model)"
+    }
+  ]
+}

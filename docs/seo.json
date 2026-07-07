@@ -1,0 +1,70 @@
+{
+  "siteName": "cursor-ollama",
+  "title": "cursor-ollama — Local Ollama for Cursor IDE",
+  "description": "Open-source CLI by AYTRONIC CO to connect local Ollama models to Cursor IDE through Cloudflare Tunnel. Bearer auth, model name rewrite, and one-command setup.",
+  "keywords": [
+    "cursor ollama",
+    "cursor ide local llm",
+    "ollama cloudflare tunnel",
+    "cursor byok ollama",
+    "local ai coding assistant",
+    "cursor-ollama cli",
+    "ollama cursor setup",
+    "self-hosted llm cursor",
+    "aytronic"
+  ],
+  "author": "AsherQelich SayyedMuhammadi",
+  "company": "AYTRONIC CO",
+  "language": "en",
+  "canonicalBaseUrl": "https://kakajan.github.io/cursor-ollama",
+  "canonicalPath": "/",
+  "themeColor": "#6366f1",
+  "openGraph": {
+    "type": "website",
+    "locale": "en_US",
+    "title": "cursor-ollama — Local Ollama for Cursor IDE",
+    "description": "Connect Ollama to Cursor via Cloudflare Tunnel. npm CLI with auth proxy and model mapping by AYTRONIC CO.",
+    "image": "og-image.png",
+    "imageWidth": 1200,
+    "imageHeight": 630,
+    "imageAlt": "cursor-ollama CLI connecting Cursor IDE to local Ollama through Cloudflare Tunnel"
+  },
+  "twitter": {
+    "card": "summary_large_image",
+    "title": "cursor-ollama — Local Ollama for Cursor IDE",
+    "description": "npm CLI: Cloudflare Tunnel + Ollama proxy for Cursor. Bearer auth and model rewrite built in.",
+    "image": "og-image.png",
+    "creator": "@kakajan"
+  },
+  "structuredData": {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "cursor-ollama",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Windows, macOS, Linux",
+    "description": "CLI tool to expose local Ollama to Cursor IDE via Cloudflare Tunnel with Bearer auth and model name rewrite.",
+    "author": {
+      "@type": "Organization",
+      "name": "AYTRONIC CO",
+      "url": "http://usher.ir"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "softwareRequirements": "Node.js 18+, Ollama, cloudflared",
+    "downloadUrl": "https://www.npmjs.com/package/cursor-ollama",
+    "license": "https://opensource.org/licenses/MIT",
+    "codeRepository": "https://github.com/kakajan/cursor-ollama"
+  },
+  "links": {
+    "npm": "https://www.npmjs.com/package/cursor-ollama",
+    "github": "https://github.com/kakajan/cursor-ollama",
+    "githubUser": "https://github.com/kakajan",
+    "company": "http://usher.ir",
+    "ollama": "https://ollama.com",
+    "cursor": "https://cursor.com",
+    "cloudflareTunnel": "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/"
+  }
+}

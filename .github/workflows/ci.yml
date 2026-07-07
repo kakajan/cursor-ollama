@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  proxy-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npm run test:integration
+
+  cli-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: node --test test/cli-config.test.mjs
+
+  npm-pack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npm pack --dry-run
+
+  scripts-shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - run: shellcheck scripts/*.sh
+
+  scripts-psscriptanalyzer:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PSScriptAnalyzer
+        shell: pwsh
+        run: Install-Module PSScriptAnalyzer -Force -Scope CurrentUser
+      - name: Analyze PowerShell scripts
+        shell: pwsh
+        run: Invoke-ScriptAnalyzer -Path scripts -Recurse -Severity Error, Warning
+
+  cli-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - name: CLI doctor
+        run: node bin/cursor-ollama.mjs doctor
+      - name: CLI init config fixture
+        run: |
+          export CURSOR_OLLAMA_CONFIG_DIR="$RUNNER_TEMP/cursor-ollama"
+          node -e "
+          import { saveConfig, generateAuthKey } from './src/lib/config.mjs';
+          import { writeModelsMap } from './src/lib/models-map.mjs';
+          const c = saveConfig({ tunnelHostname: 'ci.example.com', ollamaAuthKey: generateAuthKey() });
+          writeModelsMap(c);
+          "
+      - name: CLI cursor-config
+        run: |
+          export CURSOR_OLLAMA_CONFIG_DIR="$RUNNER_TEMP/cursor-ollama"
+          node bin/cursor-ollama.mjs cursor-config
+
+  verify-dry-run:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - name: Verify (mock mode)
+        shell: bash
+        run: node bin/cursor-ollama.mjs verify --mock
