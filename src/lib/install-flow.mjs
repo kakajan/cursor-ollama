@@ -21,27 +21,29 @@ import {
 } from './windows-install.mjs';
 import { isQuickTunnelMode } from './quick-tunnel.mjs';
 import { startProxyStack, startTunnelStack } from './stack-manager.mjs';
+import { resolveLang, t } from './i18n.mjs';
 
 function log(lines, text, type = 'ok') {
   lines.push({ text, type });
 }
 
-async function ensureOllama(config, lines) {
+async function ensureOllama(config, lines, lang) {
   try {
     await fetchOk(`http://127.0.0.1:${config.ollamaPort}/api/tags`);
-    log(lines, 'Ollama در حال اجراست');
+    log(lines, t('ollama.running', lang));
     return;
   } catch {
-    log(lines, 'در حال راه‌اندازی Ollama…');
+    log(lines, t('ollama.starting', lang));
     await runCommand('ollama', ['serve'], { allowFail: true });
     await sleep(3000);
     await fetchOk(`http://127.0.0.1:${config.ollamaPort}/api/tags`);
-    log(lines, 'Ollama آماده شد');
+    log(lines, t('ollama.ready', lang));
   }
 }
 
 export async function runInstallFromWizard(input = {}) {
   const lines = [];
+  const lang = resolveLang(input.lang);
   const tunnelMode = input.tunnelMode === 'quick' ? 'quick' : 'named';
 
   const config = saveConfig({
@@ -58,40 +60,43 @@ export async function runInstallFromWizard(input = {}) {
     skipModelPull: input.skipModelPull === true,
   });
 
-  log(lines, `ذخیره ${getConfigDir()}\\config.json`);
+  log(lines, t('config.saved', lang, { path: `${getConfigDir()}\\config.json` }));
 
   const { mapPath } = writeModelsMap(config);
-  log(lines, `ذخیره ${mapPath}`);
+  log(lines, t('config.saved', lang, { path: mapPath }));
 
-  await ensureOllama(config, lines);
+  await ensureOllama(config, lines, lang);
 
   try {
     await ensureModelAvailable(config, {
       skipPull: config.skipModelPull,
       inherit: false,
     });
-    log(lines, config.skipModelPull ? 'مدل محلی تأیید شد' : 'مدل Ollama آماده است');
+    log(
+      lines,
+      config.skipModelPull ? t('model.localVerified', lang) : t('model.ready', lang),
+    );
   } catch (err) {
-    log(lines, `مدل: ${err.message}`, 'err');
+    log(lines, t('model.error', lang, { error: err.message }), 'err');
   }
 
   fs.mkdirSync(config.cloudflaredDir, { recursive: true });
 
   if (isQuickTunnelMode(config)) {
-    log(lines, 'حالت لینک موقت trycloudflare');
+    log(lines, t('quick.mode', lang));
     try {
       await startProxyStack();
-      log(lines, 'Proxy راه‌اندازی شد');
+      log(lines, t('proxy.started', lang));
       const quick = await startTunnelStack();
       const latest = loadConfig();
       writeModelsMap(latest);
-      log(lines, `لینک موقت: https://${latest.tunnelHostname}`);
-      log(lines, `Base URL برای Cursor: https://${latest.tunnelHostname}/v1`);
+      log(lines, t('quick.link', lang, { url: `https://${latest.tunnelHostname}` }));
+      log(lines, t('quick.baseUrl', lang, { url: `https://${latest.tunnelHostname}/v1` }));
       if (quick.alreadyRunning) {
-        log(lines, 'Tunnel از قبل در حال اجرا بود');
+        log(lines, t('quick.alreadyRunning', lang));
       }
     } catch (err) {
-      log(lines, `لینک موقت: ${err.message}`, 'err');
+      log(lines, t('quick.error', lang, { error: err.message }), 'err');
     }
   } else {
     let tunnelList = await listCloudflaredTunnels();
@@ -111,47 +116,48 @@ export async function runInstallFromWizard(input = {}) {
         }),
         'utf8',
       );
-      log(lines, `فایل tunnel: ${tunnelYml}`);
+      log(lines, t('tunnel.file', lang, { path: tunnelYml }));
 
       try {
         await ensureTunnelCredentials(tunnelYml);
-        log(lines, 'اعتبارنامه tunnel تأیید شد');
+        log(lines, t('tunnel.credentialsVerified', lang));
       } catch (err) {
-        log(lines, `اعتبارنامه tunnel: ${err.message}`, 'err');
+        log(lines, t('tunnel.credentialsError', lang, { error: err.message }), 'err');
       }
 
       try {
         await routeTunnelDns(config, { force: true });
-        log(lines, `DNS → ${config.tunnelHostname}`);
+        log(lines, t('tunnel.dns', lang, { hostname: config.tunnelHostname }));
       } catch (err) {
-        log(lines, `DNS: ${err.message}`, 'err');
+        log(lines, t('tunnel.dnsError', lang, { error: err.message }), 'err');
       }
     } else {
-      log(lines, 'tunnel پیدا نشد — بعداً setup را کامل کنید', 'err');
+      log(lines, t('tunnel.notFound', lang), 'err');
     }
   }
 
   if (process.platform === 'win32') {
     await writeWindowsLaunchers(config);
-    log(lines, 'فایل‌های launcher در AppData ساخته شد');
+    log(lines, t('windows.launchersCreated', lang));
 
     const integration = await configureWindowsIntegration({
       createShortcut: input.createShortcut !== false,
       startWithWindows: input.startWithWindows !== false,
+      lang,
     });
     for (const msg of integration.messages) {
       log(lines, msg);
     }
   } else {
-    log(lines, 'میانبر/startup فقط در Windows پشتیبانی می‌شود');
+    log(lines, t('windows.unsupported', lang));
   }
 
   if (input.launchTray !== false) {
     try {
       const pid = spawnTrayBackground();
-      log(lines, `Tray در پس‌زمینه (pid ${pid})`);
+      log(lines, t('tray.background', lang, { pid }));
     } catch (err) {
-      log(lines, `Tray: ${err.message}`, 'err');
+      log(lines, t('tray.error', lang, { error: err.message }), 'err');
     }
   }
 

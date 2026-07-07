@@ -266,6 +266,7 @@ async function runInstall() {
   updateButtons();
 
   const payload = {
+    lang,
     tunnelMode: getSelectedTunnelMode(),
     tunnelHostname: document.getElementById('tunnelHostname').value.trim(),
     tunnelName: document.getElementById('tunnelName').value.trim(),

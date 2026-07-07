@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { runCommand } from './exec.mjs';
+import { resolveLang, t } from './i18n.mjs';
 import { getPackageRoot } from './paths.mjs';
 import { getShortcutIconPath } from './tray-icon.mjs';
 
@@ -70,6 +71,7 @@ async function createShortcut({ shortcutPath, targetPath, shortcutArgs = '', ico
 
 export async function configureWindowsIntegration(options = {}) {
   const messages = [];
+  const lang = resolveLang(options.lang);
   if (process.platform !== 'win32') {
     return { messages: ['Windows integration skipped (not Windows).'] };
   }
@@ -109,7 +111,7 @@ export async function configureWindowsIntegration(options = {}) {
       description: 'cursor-ollama setup wizard',
     });
 
-    messages.push('میانبر دسکتاپ و منوی Start ساخته شد');
+    messages.push(t('windows.shortcutsCreated', lang));
   }
 
   if (options.startWithWindows !== false) {
@@ -128,7 +130,7 @@ export async function configureWindowsIntegration(options = {}) {
       iconPath,
       description: 'cursor-ollama tray at login',
     });
-    messages.push('اجرای خودکار با ویندوز فعال شد');
+    messages.push(t('windows.autoStartEnabled', lang));
   }
 
   return { messages, tray, wizard, iconPath };
