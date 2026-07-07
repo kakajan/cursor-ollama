@@ -1,5 +1,5 @@
+import fs from 'node:fs';
 import os from 'node:os';
-import SysTray from 'systray2';
 import { printCursorBlock } from '../lib/cursor-block.mjs';
 import { loadConfig, getAuthKey } from '../lib/config.mjs';
 import {
@@ -13,6 +13,7 @@ import {
   stopTunnelStack,
 } from '../lib/stack-manager.mjs';
 import { getTrayIconPath } from '../lib/tray-icon.mjs';
+import { loadSysTray, TRAY_SEPARATOR } from '../lib/systray-loader.mjs';
 
 function menuItem(title, enabled = true) {
   return {
@@ -24,22 +25,27 @@ function menuItem(title, enabled = true) {
 }
 
 function buildMenu(statusText) {
+  const iconPath = getTrayIconPath();
+  if (!fs.existsSync(iconPath)) {
+    throw new Error(`Tray icon not found: ${iconPath}`);
+  }
+
   return {
-    icon: getTrayIconPath(),
+    icon: iconPath,
     isTemplateIcon: os.platform() === 'darwin',
     title: '',
     tooltip: `cursor-ollama | ${statusText}`,
     items: [
       menuItem('Start all'),
       menuItem('Stop all'),
-      SysTray.separator,
+      TRAY_SEPARATOR,
       menuItem('Start proxy'),
       menuItem('Stop proxy'),
       menuItem('Start tunnel'),
       menuItem('Stop tunnel'),
-      SysTray.separator,
+      TRAY_SEPARATOR,
       menuItem('Show Cursor config'),
-      SysTray.separator,
+      TRAY_SEPARATOR,
       menuItem('Exit'),
     ],
   };
@@ -47,7 +53,7 @@ function buildMenu(statusText) {
 
 async function refreshTray(systray, options) {
   const status = await getStackStatus(options);
-  systray.sendAction({
+  await systray.sendAction({
     type: 'update-menu',
     menu: buildMenu(formatStackStatus(status)),
   });
@@ -55,10 +61,12 @@ async function refreshTray(systray, options) {
 }
 
 export async function runTray(options = {}) {
+  const SysTray = loadSysTray();
   loadConfig(options);
 
   let systray;
   let exiting = false;
+  let timer;
 
   const initialStatus = await getStackStatus(options);
   systray = new SysTray({
@@ -67,7 +75,15 @@ export async function runTray(options = {}) {
     copyDir: true,
   });
 
-  systray.onClick(async (action) => {
+  systray.onError((err) => {
+    if (timer) clearInterval(timer);
+    console.error(err);
+    process.exit(1);
+  });
+
+  await systray.ready();
+
+  await systray.onClick(async (action) => {
     if (exiting) return;
 
     try {
@@ -97,15 +113,16 @@ export async function runTray(options = {}) {
         }
         case 'Exit':
           exiting = true;
+          if (timer) clearInterval(timer);
           await stopAllStack();
-          systray.kill(false);
+          await systray.kill(false);
           process.exit(0);
           return;
         default:
           break;
       }
     } catch (err) {
-      systray.sendAction({
+      await systray.sendAction({
         type: 'update-menu',
         menu: buildMenu(`error: ${err.message}`),
       });
@@ -115,21 +132,15 @@ export async function runTray(options = {}) {
     await refreshTray(systray, options);
   });
 
-  const timer = setInterval(() => {
+  timer = setInterval(() => {
     refreshTray(systray, options).catch(() => {});
   }, 5000);
 
-  systray.on('error', (err) => {
-    clearInterval(timer);
-    console.error(err);
-    process.exit(1);
-  });
-
   process.on('SIGINT', async () => {
     exiting = true;
-    clearInterval(timer);
+    if (timer) clearInterval(timer);
     await stopAllStack();
-    systray.kill(false);
+    await systray.kill(false);
     process.exit(0);
   });
 }
