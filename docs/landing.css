@@ -72,8 +72,8 @@ body::before {
   color: var(--text);
 }
 
-.logo-mark img { width: 34px; height: 34px; }
-.logo-mark span { color: var(--text); }
+.logo-mark img { width: 34px; height: 34px; flex-shrink: 0; }
+.logo-mark span { color: var(--text); white-space: nowrap; }
 
 .nav-links {
   display: flex;
