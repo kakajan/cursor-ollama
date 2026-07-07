@@ -1,8 +1,10 @@
 ; cursor-ollama Windows installer — build with Inno Setup 6+
 ; https://jrsoftware.org/isinfo.php
 
+#ifndef AppVersion
+#define AppVersion "1.4.0"
+#endif
 #define AppName "cursor-ollama"
-#define AppVersion "1.3.3"
 #define AppPublisher "AYTRONIC CO"
 #define AppURL "https://kakajan.github.io/cursor-ollama/"
 
@@ -45,6 +47,7 @@ Source: "..\..\installer\*"; DestDir: "{app}\installer"; Flags: ignoreversion re
 Source: "..\..\package.json"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\package-lock.json"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\node_modules\*"; DestDir: "{app}\node_modules"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\vendor\node\*"; DestDir: "{app}\node"; Flags: ignoreversion recursesubdirs
 
 [Icons]
 Name: "{group}\Cursor Ollama (Tray)"; Filename: "{app}\bin\Cursor-Ollama-Tray.cmd"; IconFilename: "{app}\assets\logo.ico"
@@ -58,24 +61,6 @@ Filename: "{app}\bin\Cursor-Ollama-Wizard.cmd"; Description: "Open setup wizard"
 
 [UninstallRun]
 Filename: "{cmd}"; Parameters: "/c ""{app}\bin\Cursor-Ollama-Uninstall.cmd"" --yes --keep-config"; Flags: runhidden waituntilterminated skipifdoesntexist
-
-[Code]
-function NodeInstalled: Boolean;
-var
-  ResultCode: Integer;
-begin
-  Result := Exec('cmd.exe', '/c where node >nul 2>&1', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) and (ResultCode = 0);
-end;
-
-function InitializeSetup: Boolean;
-begin
-  Result := True;
-  if not NodeInstalled then
-  begin
-    if MsgBox('Node.js 18+ was not found in PATH.' + #13#10 + 'Install Node from https://nodejs.org then run this installer again.' + #13#10#13#10 + 'Continue anyway?', mbConfirmation, MB_YESNO) = IDNO then
-      Result := False;
-  end;
-end;
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{localappdata}\cursor-ollama"

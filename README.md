@@ -97,15 +97,17 @@ bin\Cursor-Ollama-Tray.cmd
 
 **Build a setup `.exe`** (requires [Inno Setup 6+](https://jrsoftware.org/isdl.php)):
 
-
+The installer bundles Node.js — end users do **not** need Node installed separately.
 
 ```powershell
-
+npm run build:win
+# or
 powershell -ExecutionPolicy Bypass -File installer/windows/build.ps1
 
-# → dist/Cursor-Ollama-Setup-1.3.3.exe
-
+# → dist/Cursor-Ollama-Setup-1.4.0.exe
 ```
+
+On GitHub, push a `v*` tag or run the **Windows Installer** workflow manually to produce a release artifact.
 
 
 
@@ -263,9 +265,7 @@ Tray menu:
 
 
 
-- **Start all** / **Stop all** — proxy (`:11435`) + cloudflared tunnel
-
-- **Start/Stop proxy** and **Start/Stop tunnel** individually
+- **Start/Stop all**, **Start/Stop proxy**, **Start/Stop tunnel** — one row per scope; label toggles with live status
 
 - Switch **Cursor model** preset or **Ollama backend** (updates `models.map.json` live)
 

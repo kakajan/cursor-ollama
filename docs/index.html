@@ -278,16 +278,17 @@ Model:    gpt-4-turbo  (your chosen alias)</code></pre>
 
   <script src="i18n.js"></script>
   <script>
-    document.querySelectorAll('.guide-tab').forEach((tab) => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.guide-tab').forEach((t) => t.classList.remove('active'));
-        tab.classList.add('active');
-        const wizard = document.getElementById('guide-wizard');
-        const cli = document.getElementById('guide-cli');
-        const showWizard = tab.dataset.guide === 'wizard';
-        wizard.hidden = !showWizard;
-        cli.hidden = showWizard;
+    function showGuidePanel(name) {
+      const showWizard = name === 'wizard';
+      document.querySelectorAll('.guide-tab').forEach((t) => {
+        t.classList.toggle('active', t.dataset.guide === name);
       });
+      document.getElementById('guide-wizard').hidden = !showWizard;
+      document.getElementById('guide-cli').hidden = showWizard;
+    }
+
+    document.querySelectorAll('.guide-tab').forEach((tab) => {
+      tab.addEventListener('click', () => showGuidePanel(tab.dataset.guide));
     });
   </script>
 </body>

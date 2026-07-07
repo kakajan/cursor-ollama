@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import { saveConfig, loadConfig, generateAuthKey, loadModelsMap } from '../src/lib/config.mjs';
-import { writeModelsMap, buildModelsMap, activateMapping } from '../src/lib/models-map.mjs';
+import { writeModelsMap, buildModelsMap, activateMapping, getActiveMapping, isActiveMapping } from '../src/lib/models-map.mjs';
 
 describe('CLI config', () => {
   let tempHome;
@@ -77,6 +77,31 @@ describe('CLI config', () => {
     const map = loadModelsMap();
     assert.ok(map.mappings.some((entry) => entry.cursorName === 'gpt-4o'));
     assert.equal(map.activeMapping.ollamaName, 'llama3.2:3b');
+  });
+
+  it('getActiveMapping prefers models.map activeMapping', () => {
+    const config = loadConfig();
+    writeModelsMap(config);
+    const existing = loadModelsMap();
+    existing.activeMapping = {
+      cursorName: 'gpt-4o',
+      ollamaName: 'deepseek-coder-v2:16b',
+    };
+    fs.writeFileSync(
+      path.join(tempHome, 'models.map.json'),
+      `${JSON.stringify(existing, null, 2)}\n`,
+    );
+
+    const active = getActiveMapping(loadConfig());
+    assert.equal(active.cursorName, 'gpt-4o');
+    assert.equal(active.ollamaName, 'deepseek-coder-v2:16b');
+    assert.equal(
+      isActiveMapping(loadConfig(), {
+        cursorName: 'gpt-4o',
+        ollamaName: 'deepseek-coder-v2:16b',
+      }),
+      true,
+    );
   });
 
   it('keeps empty tunnel hostname in quick mode', () => {

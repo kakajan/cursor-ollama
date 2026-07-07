@@ -68,10 +68,23 @@ export function formatMappingLabel(mapping) {
   return `${mapping.cursorName} → ${mapping.ollamaName}`;
 }
 
-export function isActiveMapping(config, mapping) {
+export function getActiveMapping(config, options = {}) {
+  const map = loadModelsMap(options);
+  if (map?.activeMapping?.cursorName && map?.activeMapping?.ollamaName) {
+    return map.activeMapping;
+  }
+
+  return {
+    cursorName: config.cursorModelName,
+    ollamaName: config.ollamaSourceModel,
+  };
+}
+
+export function isActiveMapping(config, mapping, options = {}) {
+  const active = getActiveMapping(config, options);
   return (
-    config.cursorModelName === mapping.cursorName &&
-    config.ollamaSourceModel === mapping.ollamaName
+    active.cursorName === mapping.cursorName &&
+    active.ollamaName === mapping.ollamaName
   );
 }
 

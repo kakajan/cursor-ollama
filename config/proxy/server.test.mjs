@@ -254,4 +254,43 @@ describe('proxy server', () => {
     assert.match(mock.getLastBody(), /qwen2\.5-coder:7b/);
     assert.match(res.body, /mock response|hi|data:/);
   });
+
+  it('sanitizes invalid tool call arguments in forwarded chat history', async () => {
+    const body = JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'user', content: 'continue' },
+        {
+          role: 'assistant',
+          content: null,
+          tool_calls: [
+            {
+              id: 'call_old',
+              type: 'function',
+              function: {
+                name: 'Shell',
+                arguments: '{"command":"git log"',
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    const res = await request(proxyPort, {
+      method: 'POST',
+      path: '/v1/chat/completions',
+      headers: {
+        Authorization: `Bearer ${TEST_KEY}`,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body),
+      },
+      body,
+    });
+
+    assert.equal(res.status, 200);
+    const forwarded = JSON.parse(mock.getLastBody());
+    const args = forwarded.messages[1].tool_calls[0].function.arguments;
+    assert.doesNotThrow(() => JSON.parse(args));
+  });
 });

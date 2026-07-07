@@ -16,7 +16,7 @@ export async function runStackCommand(action = 'status', options = {}) {
       console.log(formatStackStatus(await getStackStatus(options)));
       return;
     case 'stop':
-      await stopAllStack();
+      await stopAllStack(options);
       console.log(formatStackStatus(await getStackStatus(options)));
       return;
     case 'proxy-start':
@@ -24,7 +24,7 @@ export async function runStackCommand(action = 'status', options = {}) {
       console.log(formatStackStatus(await getStackStatus(options)));
       return;
     case 'proxy-stop':
-      await stopProxyStack();
+      await stopProxyStack(options);
       console.log(formatStackStatus(await getStackStatus(options)));
       return;
     case 'tunnel-start':
@@ -32,7 +32,7 @@ export async function runStackCommand(action = 'status', options = {}) {
       console.log(formatStackStatus(await getStackStatus(options)));
       return;
     case 'tunnel-stop':
-      await stopTunnelStack();
+      await stopTunnelStack(options);
       console.log(formatStackStatus(await getStackStatus(options)));
       return;
     case 'status':

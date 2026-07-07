@@ -3,6 +3,7 @@ import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { sanitizeChatRequest, sanitizeChatResponseBody } from './chat-sanitize.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '../..');
@@ -105,7 +106,30 @@ function rewriteModelInBody(bodyBuffer, modelMap, config = {}) {
   }
 
   parsed.model = ollamaName;
-  return { body: Buffer.from(JSON.stringify(parsed)), parsed, rewritten: true };
+  const sanitized = sanitizeChatRequest(parsed);
+  return { body: Buffer.from(JSON.stringify(sanitized)), parsed: sanitized, rewritten: true };
+}
+
+function pipeChatCompletionResponse(upstreamRes, res, streaming) {
+  res.writeHead(upstreamRes.statusCode || 502, upstreamRes.headers);
+
+  if (streaming && upstreamRes.headers['content-type']?.includes('text/event-stream')) {
+    upstreamRes.pipe(res);
+    return;
+  }
+
+  const chunks = [];
+  upstreamRes.on('data', (chunk) => chunks.push(chunk));
+  upstreamRes.on('end', () => {
+    const body = Buffer.concat(chunks).toString('utf8');
+    res.end(sanitizeChatResponseBody(body));
+  });
+  upstreamRes.on('error', () => {
+    if (!res.headersSent) {
+      res.writeHead(502, { 'Content-Type': 'application/json' });
+    }
+    res.end(JSON.stringify({ error: 'Upstream response failed' }));
+  });
 }
 
 function getPathname(urlPath = '/') {
@@ -172,7 +196,10 @@ function proxyRequest(req, res, config, modelMap) {
       pathname.startsWith('/v1/completions') ||
       pathname.startsWith('/v1/embeddings'));
 
-  const forward = (bodyBuffer) => {
+  const isChatCompletion =
+    req.method === 'POST' && pathname.startsWith('/v1/chat/completions');
+
+  const forward = (bodyBuffer, { sanitizeResponse = false, streaming = false } = {}) => {
     const options = {
       hostname: '127.0.0.1',
       port: ollamaPort,
@@ -189,6 +216,11 @@ function proxyRequest(req, res, config, modelMap) {
     }
 
     const upstream = http.request(options, (upstreamRes) => {
+      if (sanitizeResponse) {
+        pipeChatCompletionResponse(upstreamRes, res, streaming);
+        return;
+      }
+
       res.writeHead(upstreamRes.statusCode || 502, upstreamRes.headers);
       upstreamRes.pipe(res);
     });
@@ -230,7 +262,8 @@ function proxyRequest(req, res, config, modelMap) {
         return;
       }
 
-      forward(result.body);
+      const streaming = Boolean(result.parsed?.stream);
+      forward(result.body, { sanitizeResponse: isChatCompletion, streaming });
       return;
     })
     .catch(() => {

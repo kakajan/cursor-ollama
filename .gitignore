@@ -5,6 +5,7 @@ config/models.map.json
 .DS_Store
 Thumbs.db
 dist/
+vendor/
 
 # Cloudflare tunnel credentials (keep in ~/.cloudflared only)
 *-credentials.json

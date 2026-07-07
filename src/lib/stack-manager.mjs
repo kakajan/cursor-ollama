@@ -169,40 +169,155 @@ async function waitForTunnelHealth(hostname, timeoutMs = 45000) {
   );
 }
 
-function killPid(pid) {
+export function cloudflaredCommandMatches(config = {}, commandLine = '') {
+  const cmd = String(commandLine).toLowerCase();
+  if (!cmd.includes('cloudflared')) return false;
+
+  const proxyPort = Number(config.proxyPort || 11435);
+  const metricsPort = getQuickTunnelMetricsPort(config);
+
+  if (isQuickTunnelMode(config)) {
+    return (
+      cmd.includes(`127.0.0.1:${metricsPort}`) ||
+      cmd.includes(`--url http://127.0.0.1:${proxyPort}`) ||
+      cmd.includes(`--url http://localhost:${proxyPort}`)
+    );
+  }
+
+  const tunnelName = String(config.tunnelName || '').toLowerCase();
+  if (tunnelName && cmd.includes(tunnelName)) return true;
+
+  return cmd.includes(' tunnel run') || cmd.includes(' tunnel --config');
+}
+
+async function listCloudflaredProcesses() {
+  if (process.platform === 'win32') {
+    const { code, stdout } = await runCommand(
+      'powershell',
+      [
+        '-NoProfile',
+        '-Command',
+        "Get-CimInstance Win32_Process -Filter \"Name='cloudflared.exe'\" | ForEach-Object { \"$($_.ProcessId)|$($_.CommandLine)\" }",
+      ],
+      { allowFail: true },
+    );
+    if (code !== 0) return [];
+
+    return stdout
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        const separator = line.indexOf('|');
+        if (separator === -1) return null;
+        const pid = Number.parseInt(line.slice(0, separator), 10);
+        const commandLine = line.slice(separator + 1);
+        if (!Number.isInteger(pid) || pid <= 0) return null;
+        return { pid, commandLine };
+      })
+      .filter(Boolean);
+  }
+
+  const { code, stdout } = await runCommand('ps', ['-ax', '-o', 'pid=,command='], {
+    allowFail: true,
+  });
+  if (code !== 0) return [];
+
+  return stdout
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const match = line.match(/^(\d+)\s+(.*)$/);
+      if (!match) return null;
+      const pid = Number.parseInt(match[1], 10);
+      const commandLine = match[2];
+      if (!Number.isInteger(pid) || pid <= 0) return null;
+      if (!commandLine.toLowerCase().includes('cloudflared')) return null;
+      return { pid, commandLine };
+    })
+    .filter(Boolean);
+}
+
+export async function findCloudflaredPid(config = {}) {
+  if (isQuickTunnelMode(config)) {
+    const metricsPid = await getListeningPidByPort(getQuickTunnelMetricsPort(config));
+    if (metricsPid) return metricsPid;
+  }
+
+  for (const entry of await listCloudflaredProcesses()) {
+    if (cloudflaredCommandMatches(config, entry.commandLine)) {
+      return entry.pid;
+    }
+  }
+
+  return null;
+}
+
+async function adoptManagedPid(name, config) {
+  if (name === 'proxy') {
+    const listenerPid = await getListeningPidByPort(config.proxyPort);
+    if (listenerPid && (await isCursorOllamaProxyPort(config.proxyPort))) {
+      writeStackPid('proxy', listenerPid);
+      return listenerPid;
+    }
+    return null;
+  }
+
+  if (name === 'tunnel') {
+    const pid = await findCloudflaredPid(config);
+    if (pid && isPidRunning(pid)) {
+      writeStackPid('tunnel', pid);
+      return pid;
+    }
+  }
+
+  return null;
+}
+
+async function killPid(pid) {
   if (!pid || !isPidRunning(pid)) return;
 
   if (process.platform === 'win32') {
-    spawn('taskkill', ['/PID', String(pid), '/T', '/F'], {
-      stdio: 'ignore',
-    });
+    await runCommand('taskkill', ['/PID', String(pid), '/T', '/F'], { allowFail: true });
   } else {
     try {
       process.kill(pid, 'SIGTERM');
+    } catch {
+      return;
+    }
+
+    for (let attempt = 0; attempt < 12; attempt += 1) {
+      if (!isPidRunning(pid)) return;
+      await sleep(250);
+    }
+
+    try {
+      process.kill(pid, 'SIGKILL');
     } catch {
       // ignore stale pid
     }
   }
 }
 
-function stopProcess(child) {
-  killPid(child?.pid);
+async function stopProcess(child) {
+  await killPid(child?.pid);
 }
 
-function stopTrackedProcess(name, child) {
-  stopProcess(child);
+async function stopTrackedProcess(name, child) {
+  await stopProcess(child);
   if (child && state[name] === child) {
     state[name] = null;
   }
 
   const pid = readStackPid(name);
   if (pid && (!child || pid !== child.pid)) {
-    killPid(pid);
+    await killPid(pid);
   }
   clearStackPid(name);
 }
 
-function attachLogging(child, label, buffers, pidName) {
+function attachLogging(child, label, buffers, pidName, options = {}) {
   if (pidName && child.pid) {
     writeStackPid(pidName, child.pid);
   }
@@ -218,7 +333,15 @@ function attachLogging(child, label, buffers, pidName) {
   child.on('exit', () => {
     if (state.proxy === child) state.proxy = null;
     if (state.tunnel === child) state.tunnel = null;
-    if (pidName) clearStackPid(pidName);
+    if (!pidName) return;
+
+    adoptManagedPid(pidName, loadConfig(options))
+      .then((pid) => {
+        if (!pid) clearStackPid(pidName);
+      })
+      .catch(() => {
+        clearStackPid(pidName);
+      });
   });
 }
 
@@ -319,15 +442,21 @@ export async function startProxyStack(options = {}) {
     windowsHide: true,
   });
 
-  attachLogging(child, 'proxy', null, 'proxy');
+  attachLogging(child, 'proxy', null, 'proxy', options);
   state.proxy = child;
   await waitForPort(config.proxyPort);
   return { started: true };
 }
 
-export async function stopProxyStack() {
-  stopTrackedProcess('proxy', state.proxy);
+export async function stopProxyStack(options = {}) {
+  await stopTrackedProcess('proxy', state.proxy);
   state.proxy = null;
+
+  const config = loadConfig(options);
+  const listenerPid = await getListeningPidByPort(config.proxyPort);
+  if (listenerPid && (await isCursorOllamaProxyPort(config.proxyPort))) {
+    await killPid(listenerPid);
+  }
 }
 
 export async function startTunnelStack(options = {}) {
@@ -340,7 +469,9 @@ export async function startTunnelStack(options = {}) {
   if (config.tunnelHostname) {
     try {
       await fetchOk(`https://${config.tunnelHostname}/health`);
-      return { alreadyRunning: true };
+      const pid = await findCloudflaredPid(config);
+      if (pid) writeStackPid('tunnel', pid);
+      return { alreadyRunning: true, pid };
     } catch {
       // not reachable yet
     }
@@ -372,7 +503,7 @@ export async function startTunnelStack(options = {}) {
     });
   }
 
-  attachLogging(child, 'tunnel', logs, 'tunnel');
+  attachLogging(child, 'tunnel', logs, 'tunnel', options);
   state.tunnel = child;
 
   for (let attempt = 0; attempt < 20; attempt += 1) {
@@ -390,6 +521,8 @@ export async function startTunnelStack(options = {}) {
   if (config.tunnelHostname) {
     await waitForTunnelHealth(config.tunnelHostname);
   }
+
+  await adoptManagedPid('tunnel', config);
 
   return { started: true, configPath: yml, mode: 'named' };
 }
@@ -415,7 +548,7 @@ async function startQuickTunnelStack(config, cloudflared, options = {}) {
     });
   }
 
-  attachLogging(child, 'tunnel', logs, 'tunnel');
+  attachLogging(child, 'tunnel', logs, 'tunnel', options);
   state.tunnel = child;
 
   for (let attempt = 0; attempt < 20; attempt += 1) {
@@ -431,6 +564,7 @@ async function startQuickTunnelStack(config, cloudflared, options = {}) {
   const hostname = await waitForQuickTunnelHostname({ metricsPort, logs });
   const updated = persistQuickTunnelHostname(config, hostname, options);
   await waitForQuickTunnelHealth(updated.tunnelHostname);
+  await adoptManagedPid('tunnel', updated);
 
   return {
     started: true,
@@ -447,7 +581,7 @@ export async function refreshQuickTunnelStack(options = {}) {
     throw new Error('Refresh is only available for temporary trycloudflare tunnels');
   }
 
-  await stopTunnelStack();
+  await stopTunnelStack(options);
   await sleep(750);
 
   const status = await getStackStatus(options);
@@ -464,9 +598,15 @@ export async function refreshQuickTunnelStack(options = {}) {
   };
 }
 
-export async function stopTunnelStack() {
-  stopTrackedProcess('tunnel', state.tunnel);
+export async function stopTunnelStack(options = {}) {
+  await stopTrackedProcess('tunnel', state.tunnel);
   state.tunnel = null;
+
+  const config = loadConfig(options);
+  const pid = await findCloudflaredPid(config);
+  if (pid) {
+    await killPid(pid);
+  }
 }
 
 export async function startAllStack(options = {}) {
@@ -475,9 +615,9 @@ export async function startAllStack(options = {}) {
   return getStackStatus(options);
 }
 
-export async function stopAllStack() {
-  await stopTunnelStack();
-  await stopProxyStack();
+export async function stopAllStack(options = {}) {
+  await stopTunnelStack(options);
+  await stopProxyStack(options);
 }
 
 export function formatStackStatus(status) {
