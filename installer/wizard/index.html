@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>cursor-ollama — Setup Wizard</title>
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="lang-switch">
+    <button type="button" data-lang="en" class="active">EN</button>
+    <button type="button" data-lang="fa">فارسی</button>
+  </div>
+
+  <div class="shell">
+    <header class="header">
+      <img class="logo-img" src="/logo.svg" alt="">
+      <h1 data-i18n="title">cursor-ollama</h1>
+      <p data-i18n="subtitle">Connect local Ollama to Cursor via Cloudflare Tunnel</p>
+    </header>
+
+    <div class="card">
+      <div class="steps" id="steps"></div>
+
+      <section class="panel active" data-step="0">
+        <h2 data-i18n="welcome.title">Welcome</h2>
+        <p class="lead" data-i18n="welcome.lead">This wizard configures settings, desktop shortcut, Windows startup, and the system tray.</p>
+        <div class="hint-box" data-i18n="welcome.hint">Ensure Ollama and cloudflared are installed. A Cloudflare account is required for the tunnel.</div>
+      </section>
+
+      <section class="panel" data-step="1">
+        <h2 data-i18n="checks.title">Prerequisites</h2>
+        <p class="lead" data-i18n="checks.lead">Checking required tools.</p>
+        <div id="checks-list"></div>
+      </section>
+
+      <section class="panel" data-step="2">
+        <h2 data-i18n="tunnel.title">Cloudflare Tunnel</h2>
+        <p class="lead" data-i18n="tunnel.lead">Choose how Cursor reaches your local proxy.</p>
+
+        <div class="field">
+          <label data-i18n="tunnel.domainQuestion">Do you have a domain on Cloudflare?</label>
+          <div class="radio-row">
+            <label class="toggle">
+              <input type="radio" name="tunnelMode" id="tunnelModeNamed" value="named" checked>
+              <span data-i18n="tunnel.hasDomain">Yes — use my Cloudflare domain</span>
+            </label>
+            <label class="toggle">
+              <input type="radio" name="tunnelMode" id="tunnelModeQuick" value="quick">
+              <span data-i18n="tunnel.noDomain">No — create a temporary trycloudflare link</span>
+            </label>
+          </div>
+        </div>
+
+        <div id="namedTunnelFields">
+          <div class="grid-2">
+            <div class="field">
+              <label data-i18n="tunnel.hostname">Hostname (without https://)</label>
+              <input id="tunnelHostname" type="text" placeholder="ollama.example.com" autocomplete="off">
+            </div>
+            <div class="field">
+              <label data-i18n="tunnel.name">Tunnel name</label>
+              <input id="tunnelName" type="text" placeholder="cursor-ollama" autocomplete="off">
+            </div>
+          </div>
+          <div class="hint-box">
+            <span data-i18n="tunnel.cmdHint">If you need a new tunnel, run in PowerShell:</span>
+            <code>cloudflared tunnel login
+cloudflared tunnel create cursor-ollama</code>
+          </div>
+          <button type="button" class="btn btn-ghost" id="refreshTunnels" data-i18n="tunnel.refresh">Check tunnel</button>
+          <div id="tunnelStatus" class="hint-box" style="display:none;margin-top:0.75rem"></div>
+        </div>
+
+        <div id="quickTunnelHint" class="hint-box" style="display:none;margin-top:0.75rem" data-i18n="tunnel.quickHint">
+          No Cloudflare domain needed. After install we create a temporary trycloudflare.com URL. You can refresh or copy it later from tray or Settings.
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label data-i18n="tunnel.ollamaPort">Ollama port</label>
+            <input id="ollamaPort" type="number" min="1" max="65535" value="11434" autocomplete="off">
+          </div>
+          <div class="field">
+            <label data-i18n="tunnel.proxyPort">Proxy port</label>
+            <input id="proxyPort" type="number" min="1" max="65535" value="11435" autocomplete="off">
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" data-step="3">
+        <h2 data-i18n="models.title">Models</h2>
+        <p class="lead" data-i18n="models.lead">Choose Ollama model and Cursor allowlisted name.</p>
+        <div class="field">
+          <label data-i18n="models.ollama">Ollama model</label>
+          <select id="ollamaModel"></select>
+        </div>
+        <div class="field">
+          <label data-i18n="models.cursor">Cursor model name</label>
+          <input id="cursorModel" type="text" value="gpt-4o-mini" autocomplete="off">
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="skipPull">
+          <span data-i18n="models.skipPull">Skip pull — use locally installed model only</span>
+        </label>
+      </section>
+
+      <section class="panel" data-step="4">
+        <h2 data-i18n="options.title">Windows options</h2>
+        <p class="lead" data-i18n="options.lead">Choose shortcut and startup behavior.</p>
+        <label class="toggle">
+          <input type="checkbox" id="createShortcut" checked>
+          <span data-i18n="options.shortcut">Create desktop shortcut (cursor-ollama icon)</span>
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="startWithWindows" checked>
+          <span data-i18n="options.startup">Start tray when Windows boots</span>
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="launchTray" checked>
+          <span data-i18n="options.tray">Launch tray in background after install</span>
+        </label>
+      </section>
+
+      <section class="panel" data-step="5">
+        <h2 data-i18n="install.title">Install</h2>
+        <p class="lead" data-i18n="install.lead">Saving configuration and setting up…</p>
+        <div class="progress-log" id="progressLog"></div>
+        <div class="cursor-block" id="cursorBlock" style="display:none"></div>
+      </section>
+
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" id="btnBack" data-i18n="btn.back">Back</button>
+        <button type="button" class="btn btn-primary" id="btnNext" data-i18n="btn.next">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js" type="module"></script>
+</body>
+</html>

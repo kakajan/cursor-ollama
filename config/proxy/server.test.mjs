@@ -1,7 +1,7 @@
 import http from 'node:http';
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { createProxyServer } from './server.mjs';
+import { buildModelMap, createProxyServer, resolveOllamaModel } from './server.mjs';
 
 const TEST_KEY = 'test-key-ci-only';
 
@@ -98,6 +98,7 @@ describe('proxy server', () => {
         proxyPort: 0,
         ollamaPort: mock.port,
         mappings: [{ cursorName: 'gpt-4o-mini', ollamaName: 'qwen2.5-coder:7b' }],
+        activeMapping: { cursorName: 'gpt-4o-mini', ollamaName: 'qwen2.5-coder:7b' },
       },
     }));
 
@@ -121,6 +122,18 @@ describe('proxy server', () => {
       headers: { Authorization: 'Bearer wrong-key' },
     });
     assert.equal(res.status, 401);
+  });
+
+  it('serves GET /health without auth for tunnel diagnostics', async () => {
+    const res = await request(proxyPort, { path: '/health' });
+    assert.equal(res.status, 200);
+    assert.match(res.body, /"ok":true/);
+    assert.match(res.body, /"service":"cursor-ollama-proxy"/);
+  });
+
+  it('serves HEAD /health without auth', async () => {
+    const res = await request(proxyPort, { method: 'HEAD', path: '/health' });
+    assert.equal(res.status, 200);
   });
 
   it('passes through GET /v1/models', async () => {
@@ -154,9 +167,9 @@ describe('proxy server', () => {
     assert.doesNotMatch(mock.getLastBody(), /gpt-4o-mini/);
   });
 
-  it('returns 400 for unknown model', async () => {
+  it('rewrites dated Cursor model variants via prefix match', async () => {
     const body = JSON.stringify({
-      model: 'gpt-5',
+      model: 'gpt-4o-mini-2024-07-18',
       messages: [{ role: 'user', content: 'hi' }],
     });
 
@@ -171,8 +184,52 @@ describe('proxy server', () => {
       body,
     });
 
-    assert.equal(res.status, 400);
-    assert.match(res.body, /Unknown model/);
+    assert.equal(res.status, 200);
+    assert.match(mock.getLastBody(), /qwen2\.5-coder:7b/);
+  });
+
+  it('falls back to active mapping for other Cursor model names', async () => {
+    const body = JSON.stringify({
+      model: 'gpt-4-turbo-2024-04-09',
+      messages: [{ role: 'user', content: 'hi' }],
+    });
+
+    const res = await request(proxyPort, {
+      method: 'POST',
+      path: '/v1/chat/completions',
+      headers: {
+        Authorization: `Bearer ${TEST_KEY}`,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body),
+      },
+      body,
+    });
+
+    assert.equal(res.status, 200);
+    assert.match(mock.getLastBody(), /qwen2\.5-coder:7b/);
+  });
+
+  it('resolveOllamaModel prefers exact and prefix matches', () => {
+    const map = buildModelMap([{ cursorName: 'gpt-4-turbo', ollamaName: 'qwen3.6:35b-a3b' }]);
+    const config = {
+      activeMapping: { cursorName: 'gpt-4-turbo', ollamaName: 'qwen3.6:35b-a3b' },
+    };
+
+    assert.equal(resolveOllamaModel('gpt-4-turbo', map, config), 'qwen3.6:35b-a3b');
+    assert.equal(resolveOllamaModel('gpt-4-turbo-2024-04-09', map, config), 'qwen3.6:35b-a3b');
+    assert.equal(resolveOllamaModel('gpt-4o', map, config), 'qwen3.6:35b-a3b');
+  });
+
+  it('resolveOllamaModel prefers most specific prefix mapping', () => {
+    const map = buildModelMap([
+      { cursorName: 'gpt-4', ollamaName: 'generic-gpt4' },
+      { cursorName: 'gpt-4-turbo', ollamaName: 'qwen3.6:35b-a3b' },
+    ]);
+
+    assert.equal(
+      resolveOllamaModel('gpt-4-turbo-2024-04-09', map, {}),
+      'qwen3.6:35b-a3b',
+    );
   });
 
   it('rewrites streaming chat completions', async () => {

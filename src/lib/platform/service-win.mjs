@@ -44,6 +44,11 @@ export async function stopProxyService() {
   await runCommand('schtasks', ['/End', '/TN', 'CursorOllamaProxy'], { allowFail: true });
 }
 
+export async function uninstallProxyService() {
+  await runCommand('schtasks', ['/End', '/TN', 'CursorOllamaProxy'], { allowFail: true });
+  await runCommand('schtasks', ['/Delete', '/TN', 'CursorOllamaProxy', '/F'], { allowFail: true });
+}
+
 export async function proxyServiceStatus() {
   try {
     const { stdout } = await runCommand('schtasks', ['/Query', '/TN', 'CursorOllamaProxy', '/FO', 'LIST']);

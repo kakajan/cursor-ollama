@@ -12,8 +12,10 @@ import {
 export const DEFAULTS = {
   tunnelHostname: 'ollama-you.example.com',
   tunnelName: 'cursor-ollama',
+  tunnelMode: 'named',
   ollamaPort: 11434,
   proxyPort: 11435,
+  quickTunnelMetricsPort: 57555,
   ollamaSourceModel: 'qwen2.5-coder:7b',
   cursorModelName: 'gpt-4o-mini',
   secureTunnel: true,
@@ -37,11 +39,17 @@ function parseEnvFile(content) {
 }
 
 function envToConfig(env) {
+  const tunnelMode = env.TUNNEL_MODE === 'quick' ? 'quick' : 'named';
   return {
-    tunnelHostname: env.TUNNEL_HOSTNAME || DEFAULTS.tunnelHostname,
+    tunnelHostname:
+      tunnelMode === 'quick'
+        ? String(env.TUNNEL_HOSTNAME ?? '').trim()
+        : env.TUNNEL_HOSTNAME || DEFAULTS.tunnelHostname,
     tunnelName: env.TUNNEL_NAME || DEFAULTS.tunnelName,
+    tunnelMode,
     ollamaPort: Number(env.OLLAMA_PORT || DEFAULTS.ollamaPort),
     proxyPort: Number(env.PROXY_PORT || DEFAULTS.proxyPort),
+    quickTunnelMetricsPort: Number(env.QUICK_TUNNEL_METRICS_PORT || DEFAULTS.quickTunnelMetricsPort),
     ollamaSourceModel: env.OLLAMA_SOURCE_MODEL || DEFAULTS.ollamaSourceModel,
     cursorModelName: env.CURSOR_MODEL_NAME || DEFAULTS.cursorModelName,
     ollamaAuthKey: env.OLLAMA_AUTH_KEY || '',
@@ -53,11 +61,19 @@ function envToConfig(env) {
 }
 
 function normalizeConfig(raw = {}) {
+  const tunnelMode = raw.tunnelMode === 'quick' ? 'quick' : 'named';
+  const rawHostname =
+    tunnelMode === 'quick'
+      ? raw.tunnelHostname ?? ''
+      : raw.tunnelHostname || DEFAULTS.tunnelHostname;
+
   return {
-    tunnelHostname: raw.tunnelHostname || DEFAULTS.tunnelHostname,
+    tunnelHostname: String(rawHostname).trim(),
     tunnelName: raw.tunnelName || DEFAULTS.tunnelName,
+    tunnelMode,
     ollamaPort: Number(raw.ollamaPort ?? DEFAULTS.ollamaPort),
     proxyPort: Number(raw.proxyPort ?? DEFAULTS.proxyPort),
+    quickTunnelMetricsPort: Number(raw.quickTunnelMetricsPort ?? DEFAULTS.quickTunnelMetricsPort),
     ollamaSourceModel: raw.ollamaSourceModel || DEFAULTS.ollamaSourceModel,
     cursorModelName: raw.cursorModelName || DEFAULTS.cursorModelName,
     ollamaAuthKey: raw.ollamaAuthKey || '',
@@ -70,6 +86,19 @@ function normalizeConfig(raw = {}) {
 
 export function generateAuthKey() {
   return crypto.randomBytes(24).toString('hex');
+}
+
+export function parsePort(value, fallback, label = 'Port') {
+  if (value === undefined || value === null || value === '') {
+    return fallback;
+  }
+
+  const num = Number.parseInt(String(value), 10);
+  if (!Number.isInteger(num) || num < 1 || num > 65535) {
+    throw new Error(`${label} must be an integer between 1 and 65535`);
+  }
+
+  return num;
 }
 
 export function loadConfig(options = {}) {

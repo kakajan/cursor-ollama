@@ -41,6 +41,16 @@ export async function stopProxyService() {
   await runCommand('launchctl', ['unload', plistPath], { allowFail: true, inherit: true });
 }
 
+export async function uninstallProxyService() {
+  const plistPath = path.join(os.homedir(), 'Library', 'LaunchAgents', 'com.cursor-ollama.proxy.plist');
+  await runCommand('launchctl', ['unload', plistPath], { allowFail: true, inherit: true });
+  try {
+    fs.unlinkSync(plistPath);
+  } catch {
+    // ignore missing plist
+  }
+}
+
 export async function proxyServiceStatus() {
   await runCommand('launchctl', ['list'], { allowFail: true, inherit: true });
 }

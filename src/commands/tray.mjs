@@ -1,7 +1,10 @@
 import fs from 'node:fs';
 import os from 'node:os';
-import { printCursorBlock } from '../lib/cursor-block.mjs';
+import { showCursorConfig } from '../lib/cursor-block.mjs';
+import { copyTunnelUrl, openConfigFile, openSettingsPage, refreshQuickTunnel } from '../lib/settings-ui.mjs';
+import { openAboutPage } from '../lib/about-ui.mjs';
 import { loadConfig, getAuthKey } from '../lib/config.mjs';
+import { isQuickTunnelMode } from '../lib/quick-tunnel.mjs';
 import {
   activateMapping,
   formatMappingLabel,
@@ -21,7 +24,14 @@ import {
   stopTunnelStack,
 } from '../lib/stack-manager.mjs';
 import { getTrayIconPath } from '../lib/tray-icon.mjs';
+import { prepareTunnelConfig } from '../lib/tunnel.mjs';
 import { loadSysTray, TRAY_SEPARATOR } from '../lib/systray-loader.mjs';
+import {
+  acquireTrayPid,
+  isTrayRunning,
+  releaseTrayPid,
+  spawnTrayBackground,
+} from '../lib/tray-daemon.mjs';
 
 const CHECK = '✓ ';
 
@@ -92,7 +102,12 @@ async function buildMenu(statusText, options, clickHandlers) {
 
   items.push(
     TRAY_SEPARATOR,
+    menuItem('Copy tunnel URL'),
+    ...(isQuickTunnelMode(config) ? [menuItem('Refresh quick tunnel')] : []),
+    menuItem('Settings…'),
+    menuItem('Open config file'),
     menuItem('Show Cursor config'),
+    menuItem('About…'),
     TRAY_SEPARATOR,
     menuItem('Exit'),
   );
@@ -122,13 +137,43 @@ function resolveClickHandler(clickHandlers, title) {
 }
 
 export async function runTray(options = {}) {
+  if (!options.foreground) {
+    const { running, pid } = isTrayRunning();
+    if (running) {
+      console.log(`Tray already running (pid ${pid}).`);
+      return;
+    }
+
+    const childPid = spawnTrayBackground(options);
+    console.log(`Tray started in background (pid ${childPid}).`);
+    console.log('You can close this terminal. Use tray menu Exit to quit.');
+    return;
+  }
+
   const SysTray = loadSysTray();
-  loadConfig(options);
+  const config = loadConfig(options);
+  const lock = acquireTrayPid();
+  if (!lock.acquired) {
+    console.log(`Tray already running (pid ${lock.pid}).`);
+    return;
+  }
+
+  try {
+    if (!isQuickTunnelMode(config)) {
+      await prepareTunnelConfig(config);
+    }
+  } catch (err) {
+    console.error(`Tunnel config: ${err.message}`);
+  }
 
   let systray;
   let exiting = false;
   let timer;
   const clickHandlers = new Map();
+
+  const shutdown = async () => {
+    releaseTrayPid();
+  };
 
   try {
     const initialStatus = await getStackStatus(options);
@@ -140,14 +185,16 @@ export async function runTray(options = {}) {
 
     await systray.ready();
   } catch (err) {
+    await shutdown();
     console.error(`Tray failed to start: ${err.message}`);
     console.error('If using global install: npm i -g cursor-ollama@latest');
     console.error('Or run from repo: node bin/cursor-ollama.mjs tray');
     process.exit(1);
   }
 
-  systray.onError((err) => {
+  systray.onError(async (err) => {
     if (timer) clearInterval(timer);
+    await shutdown();
     console.error(err);
     process.exit(1);
   });
@@ -185,15 +232,31 @@ export async function runTray(options = {}) {
           await stopTunnelStack();
           break;
         case 'Show Cursor config': {
-          const config = loadConfig(options);
-          printCursorBlock(config, getAuthKey(config, null));
+          const cfg = loadConfig(options);
+          await showCursorConfig(cfg, getAuthKey(cfg, null));
           break;
         }
+        case 'Copy tunnel URL':
+          await copyTunnelUrl(options, 'base');
+          break;
+        case 'Refresh quick tunnel':
+          await refreshQuickTunnel(options);
+          break;
+        case 'Settings…':
+          await openSettingsPage();
+          break;
+        case 'Open config file':
+          openConfigFile();
+          break;
+        case 'About…':
+          await openAboutPage();
+          break;
         case 'Exit':
           exiting = true;
           if (timer) clearInterval(timer);
           await stopAllStack();
           await systray.kill(false);
+          await shutdown();
           process.exit(0);
           return;
         default:
@@ -219,6 +282,7 @@ export async function runTray(options = {}) {
     if (timer) clearInterval(timer);
     await stopAllStack();
     await systray.kill(false);
+    await shutdown();
     process.exit(0);
   });
 }

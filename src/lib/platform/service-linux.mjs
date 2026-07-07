@@ -38,6 +38,15 @@ export async function stopProxyService() {
   await runCommand('sudo', ['systemctl', 'stop', 'cursor-ollama-proxy.service'], { allowFail: true, inherit: true });
 }
 
+export async function uninstallProxyService() {
+  await runCommand('sudo', ['systemctl', 'disable', '--now', 'cursor-ollama-proxy.service'], {
+    allowFail: true,
+    inherit: true,
+  });
+  await runCommand('sudo', ['rm', '-f', UNIT], { allowFail: true, inherit: true });
+  await runCommand('sudo', ['systemctl', 'daemon-reload'], { allowFail: true, inherit: true });
+}
+
 export async function proxyServiceStatus() {
   await runCommand('systemctl', ['status', 'cursor-ollama-proxy.service', '--no-pager'], {
     allowFail: true,

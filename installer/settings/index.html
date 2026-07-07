@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>cursor-ollama — Settings</title>
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="lang-switch">
+    <button type="button" data-lang="en" class="active">EN</button>
+    <button type="button" data-lang="fa">فارسی</button>
+  </div>
+
+  <div class="shell">
+    <header class="header">
+      <img class="logo-img" src="/logo.svg" alt="">
+      <h1 data-i18n="title">cursor-ollama</h1>
+      <p data-i18n="subtitle">Ports and tunnel settings</p>
+    </header>
+
+    <div class="card">
+      <section class="panel active">
+        <h2 data-i18n="settings.title">Settings</h2>
+        <p class="lead" data-i18n="settings.lead">Change ports or tunnel mode. Restart proxy/tunnel after saving port changes.</p>
+
+        <div class="field">
+          <label data-i18n="settings.tunnelMode">Tunnel mode</label>
+          <div class="radio-row">
+            <label class="toggle">
+              <input type="radio" name="tunnelMode" id="tunnelModeNamed" value="named" checked>
+              <span data-i18n="settings.modeNamed">Cloudflare domain</span>
+            </label>
+            <label class="toggle">
+              <input type="radio" name="tunnelMode" id="tunnelModeQuick" value="quick">
+              <span data-i18n="settings.modeQuick">Temporary trycloudflare link</span>
+            </label>
+          </div>
+        </div>
+
+        <div id="namedSettingsFields">
+          <div class="grid-2">
+            <div class="field">
+              <label data-i18n="settings.hostname">Tunnel hostname</label>
+              <input id="tunnelHostname" type="text" autocomplete="off">
+            </div>
+            <div class="field">
+              <label data-i18n="settings.tunnelName">Tunnel name</label>
+              <input id="tunnelName" type="text" autocomplete="off">
+            </div>
+          </div>
+        </div>
+
+        <div id="quickSettingsFields" style="display:none">
+          <div id="quickLoadingBanner" class="quick-loading-banner" style="display:none">
+            <span class="quick-spinner" aria-hidden="true"></span>
+            <span id="quickLoadingText" data-i18n="settings.loadingFetch">Fetching temporary link…</span>
+          </div>
+          <div class="field">
+            <label data-i18n="settings.currentUrl">Current public URL</label>
+            <input id="quickTunnelUrl" type="text" readonly>
+          </div>
+          <div class="field">
+            <label data-i18n="settings.cursorBaseUrl">Cursor Base URL</label>
+            <input id="quickBaseUrl" type="text" readonly>
+          </div>
+          <div class="actions inline-actions">
+            <button type="button" class="btn btn-ghost" id="btnCopyUrl" data-i18n="btn.copyUrl">Copy Base URL</button>
+            <button type="button" class="btn btn-ghost" id="btnCopyPublic" data-i18n="btn.copyPublic">Copy public link</button>
+            <button type="button" class="btn btn-primary" id="btnRefreshQuick" data-i18n="btn.refreshQuick">Refresh link</button>
+          </div>
+          <div class="hint-box" data-i18n="settings.quickHint">Temporary links change when refreshed. Update Cursor Settings after refresh.</div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label data-i18n="settings.ollamaPort">Ollama port</label>
+            <input id="ollamaPort" type="number" min="1" max="65535" value="11434" autocomplete="off">
+          </div>
+          <div class="field">
+            <label data-i18n="settings.proxyPort">Proxy port</label>
+            <input id="proxyPort" type="number" min="1" max="65535" value="11435" autocomplete="off">
+          </div>
+        </div>
+
+        <div id="statusBox" class="hint-box" style="display:none;margin-top:0.75rem"></div>
+        <div class="hint-box" id="configPathBox" style="margin-top:0.75rem;font-size:0.85rem"></div>
+      </section>
+
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" id="btnClose" data-i18n="btn.close">Close</button>
+        <button type="button" class="btn btn-primary" id="btnSave" data-i18n="btn.save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js" type="module"></script>
+</body>
+</html>

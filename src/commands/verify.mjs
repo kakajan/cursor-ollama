@@ -70,6 +70,10 @@ export async function runVerify(options = {}) {
       fetchOk(`http://127.0.0.1:${ollamaPort}/api/tags`)
     );
 
+    await check('proxy /health', () =>
+      fetchOk(`http://127.0.0.1:${proxyPort}/health`)
+    );
+
     await check('proxy /v1/models (auth)', () =>
       fetchOk(`http://127.0.0.1:${proxyPort}/v1/models`, {
         headers: { Authorization: `Bearer ${authKey}` },
@@ -91,6 +95,10 @@ export async function runVerify(options = {}) {
     );
 
     if (!options.mock && config.tunnelHostname) {
+      await check('tunnel /health', () =>
+        fetchOk(`https://${config.tunnelHostname}/health`)
+      );
+
       await check('tunnel /v1/models', () =>
         fetchOk(`https://${config.tunnelHostname}/v1/models`, {
           headers: { Authorization: `Bearer ${authKey}` },

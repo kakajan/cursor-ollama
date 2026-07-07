@@ -1,40 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Primary SEO (edit docs/seo.json — keep in sync) -->
-  <title>cursor-ollama — Local Ollama for Cursor IDE</title>
+  <title>Easy Ollama Setup for Cursor — cursor-ollama</title>
   <meta name="author" content="AsherQelich SayyedMuhammadi, AYTRONIC CO">
-  <meta name="description" content="Open-source CLI by AYTRONIC CO to connect local Ollama models to Cursor IDE through Cloudflare Tunnel. Bearer auth, model name rewrite, and one-command setup.">
-  <meta name="keywords" content="cursor ollama, cursor ide local llm, ollama cloudflare tunnel, cursor byok ollama, local ai coding assistant, cursor-ollama cli, aytronic">
+  <meta name="description" content="The easiest way to connect local Ollama to Cursor IDE. Free open-source CLI with Windows wizard, secure Cloudflare Tunnel, model name rewrite, and one-click tray control.">
+  <meta name="keywords" content="easy ollama setup for cursor, cursor ollama, local llm cursor ide, ollama cloudflare tunnel, cursor byok, cursor-ollama wizard, ollama cursor فارسی">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#6366f1">
   <link rel="canonical" href="https://kakajan.github.io/cursor-ollama/">
-
-  <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="fa_IR">
   <meta property="og:site_name" content="cursor-ollama">
-  <meta property="og:title" content="cursor-ollama — Local Ollama for Cursor IDE">
-  <meta property="og:description" content="Connect Ollama to Cursor via Cloudflare Tunnel. npm CLI by AYTRONIC CO with auth proxy and model mapping.">
+  <meta property="og:title" content="Easy Ollama Setup for Cursor IDE">
+  <meta property="og:description" content="Connect Ollama to Cursor in minutes. Windows wizard, Cloudflare Tunnel, Bearer auth, and model mapping — free & open source.">
   <meta property="og:url" content="https://kakajan.github.io/cursor-ollama/">
   <meta property="og:image" content="https://kakajan.github.io/cursor-ollama/og-image.webp">
-  <meta property="og:image:type" content="image/webp">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="cursor-ollama CLI connecting Cursor IDE to local Ollama through Cloudflare Tunnel">
-
-  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="cursor-ollama — Local Ollama for Cursor IDE">
-  <meta name="twitter:description" content="npm CLI: Cloudflare Tunnel + Ollama proxy for Cursor. Bearer auth and model rewrite built in.">
+  <meta name="twitter:title" content="Easy Ollama Setup for Cursor IDE">
+  <meta name="twitter:description" content="Free CLI + Windows wizard to run local Ollama in Cursor via Cloudflare Tunnel.">
   <meta name="twitter:image" content="https://kakajan.github.io/cursor-ollama/og-image.webp">
-  <meta name="twitter:creator" content="@kakajan">
-
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦙</text></svg>">
-
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="landing.css">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -42,7 +34,7 @@
     "name": "cursor-ollama",
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "Windows, macOS, Linux",
-    "description": "CLI tool to expose local Ollama to Cursor IDE via Cloudflare Tunnel with Bearer auth and model name rewrite.",
+    "description": "The easiest way to connect local Ollama models to Cursor IDE via Cloudflare Tunnel with a guided wizard, tray app, and secure proxy.",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
     "softwareRequirements": "Node.js 18+, Ollama, cloudflared",
     "downloadUrl": "https://www.npmjs.com/package/cursor-ollama",
@@ -51,227 +43,252 @@
     "codeRepository": "https://github.com/kakajan/cursor-ollama"
   }
   </script>
-
-  <style>
-    :root {
-      --bg: #0b0f19;
-      --surface: #121829;
-      --border: #1e293b;
-      --text: #e2e8f0;
-      --muted: #94a3b8;
-      --accent: #818cf8;
-      --accent2: #22d3ee;
-      --green: #4ade80;
-      --radius: 12px;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-    }
-    .hero-bg {
-      background:
-        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(99,102,241,.25), transparent),
-        radial-gradient(ellipse 50% 40% at 90% 20%, rgba(34,211,238,.12), transparent),
-        var(--bg);
-    }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
-    header { padding: 1.25rem 0; border-bottom: 1px solid var(--border); }
-    nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-    .logo { font-weight: 700; font-size: 1.15rem; letter-spacing: -0.02em; }
-    .logo span { color: var(--accent); }
-    nav a { color: var(--muted); text-decoration: none; font-size: .9rem; margin-left: 1.25rem; }
-    nav a:hover { color: var(--text); }
-    .hero { padding: 4rem 0 3rem; display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
-    @media (max-width: 800px) { .hero { grid-template-columns: 1fr; } }
-    h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.15; letter-spacing: -0.03em; margin-bottom: 1rem; }
-    .lead { font-size: 1.125rem; color: var(--muted); max-width: 34rem; margin-bottom: 1.75rem; }
-    .cta { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 2rem; }
-    .btn {
-      display: inline-flex; align-items: center; gap: .5rem;
-      padding: .75rem 1.25rem; border-radius: var(--radius);
-      font-weight: 600; font-size: .95rem; text-decoration: none;
-      transition: transform .15s, box-shadow .15s;
-    }
-    .btn:hover { transform: translateY(-1px); }
-    .btn-primary { background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; box-shadow: 0 4px 20px rgba(99,102,241,.35); }
-    .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
-    .terminal {
-      background: #0d1117; border: 1px solid var(--border); border-radius: var(--radius);
-      overflow: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: .82rem; box-shadow: 0 20px 50px rgba(0,0,0,.4);
-    }
-    .terminal-bar { background: #161b22; padding: .6rem 1rem; display: flex; gap: .4rem; border-bottom: 1px solid var(--border); }
-    .dot { width: 10px; height: 10px; border-radius: 50%; }
-    .dot-r { background: #ff5f57; } .dot-y { background: #febc2e; } .dot-g { background: #28c840; }
-    .terminal-body { padding: 1.25rem; color: #c9d1d9; line-height: 1.7; }
-    .t-comment { color: #8b949e; }
-    .t-cmd { color: var(--green); }
-    .t-out { color: #79c0ff; }
-    .badges { display: flex; gap: .5rem; flex-wrap: wrap; }
-    .badge {
-      font-size: .75rem; padding: .25rem .6rem; border-radius: 999px;
-      background: rgba(99,102,241,.15); color: var(--accent); border: 1px solid rgba(99,102,241,.3);
-    }
-    section { padding: 3.5rem 0; border-top: 1px solid var(--border); }
-    h2 { font-size: 1.75rem; letter-spacing: -0.02em; margin-bottom: 1.5rem; }
-    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; }
-    .card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 1.5rem;
-    }
-    .card h3 { font-size: 1rem; margin-bottom: .5rem; color: var(--accent2); }
-    .card p { color: var(--muted); font-size: .925rem; }
-    .flow {
-      display: flex; align-items: center; justify-content: center; gap: .5rem;
-      flex-wrap: wrap; font-size: .85rem; color: var(--muted); margin: 2rem 0;
-    }
-    .flow-box { background: var(--surface); border: 1px solid var(--border); padding: .5rem 1rem; border-radius: 8px; }
-    .flow-arrow { color: var(--accent); }
-    pre { background: #0d1117; border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; overflow-x: auto; font-size: .85rem; }
-    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    footer { padding: 2rem 0; border-top: 1px solid var(--border); color: var(--muted); font-size: .85rem; text-align: center; }
-    footer a { color: var(--accent); }
-  </style>
 </head>
-<body class="hero-bg">
-  <header>
-    <div class="wrap">
-      <nav>
-        <div class="logo">cursor-<span>ollama</span></div>
-        <div>
-          <a href="#features">Features</a>
-          <a href="#install">Install</a>
-          <a href="#how-it-works">How it works</a>
-          <a href="https://github.com/kakajan/cursor-ollama">GitHub</a>
+<body>
+  <header class="site-header">
+    <div class="wrap nav">
+      <a class="logo-mark" href="#top"><img src="logo.svg" width="34" height="34" alt="">cursor-<span>ollama</span></a>
+      <div class="nav-right">
+        <div class="lang-switch">
+          <button type="button" data-lang="en" class="active">EN</button>
+          <button type="button" data-lang="fa">فارسی</button>
         </div>
-      </nav>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="#why" data-i18n="nav.why">Why</a>
+          <a href="#wizard-guide" data-i18n="nav.guide">Wizard guide</a>
+          <a href="#settings-tray" data-i18n="nav.settings">Settings & tray</a>
+          <a href="#cursor-setup" data-i18n="nav.cursor">Cursor setup</a>
+          <a href="#faq" data-i18n="nav.faq">FAQ</a>
+          <a href="https://github.com/kakajan/cursor-ollama" data-i18n="nav.github">GitHub</a>
+        </nav>
+      </div>
     </div>
   </header>
 
-  <main>
+  <main id="top">
     <section class="hero wrap">
       <div>
-        <div class="badges" style="margin-bottom:1rem">
-          <span class="badge">npm CLI</span>
-          <span class="badge">Cloudflare Tunnel</span>
-          <span class="badge">Strategy C Proxy</span>
-          <span class="badge">MIT License</span>
+        <div class="eyebrow" data-i18n="hero.eyebrow">Free · Open source · 5-minute setup</div>
+        <div class="badges">
+          <span class="badge" data-i18n="badge.wizard">Windows wizard</span>
+          <span class="badge" data-i18n="badge.tunnel">Cloudflare Tunnel</span>
+          <span class="badge" data-i18n="badge.quick">trycloudflare option</span>
+          <span class="badge" data-i18n="badge.secure">Bearer auth</span>
+          <span class="badge" data-i18n="badge.mit">MIT</span>
         </div>
-        <h1>Local Ollama models in Cursor IDE</h1>
-        <p class="lead">
-          <strong>cursor-ollama</strong> exposes your local Ollama through a secure Cloudflare Tunnel,
-          rewrites model names for Cursor's allowlist, and validates Bearer auth — one command to set up.
+        <h1 data-i18n="hero.title">The easiest way to connect Ollama to Cursor</h1>
+        <p class="hero-sub" data-i18n="hero.sub">
+          Run local models in Cursor IDE without OpenAI bills. cursor-ollama sets up a secure HTTPS tunnel,
+          rewrites model names Cursor accepts, and gives you a tray app to start everything in one click.
         </p>
-        <div class="cta">
-          <a class="btn btn-primary" href="https://www.npmjs.com/package/cursor-ollama">Install from npm</a>
-          <a class="btn btn-secondary" href="https://github.com/kakajan/cursor-ollama">View on GitHub</a>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#wizard-guide" data-i18n="hero.cta.guide">Start the wizard guide</a>
+          <a class="btn btn-secondary" href="https://www.npmjs.com/package/cursor-ollama" data-i18n="hero.cta.npm">Install from npm</a>
+        </div>
+        <div class="trust-row">
+          <span><i class="dot-live"></i><span data-i18n="hero.trust.1">No OpenAI API calls</span></span>
+          <span data-i18n="hero.trust.2">Works with BYOK</span>
+          <span data-i18n="hero.trust.3">English + Persian UI</span>
         </div>
       </div>
-      <div class="terminal">
-        <div class="terminal-bar"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div>
-        <div class="terminal-body">
-          <div class="t-comment"># Quick start</div>
+      <div class="hero-panel">
+        <div class="panel-bar"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div>
+        <div class="panel-body">
+          <div class="t-comment" data-i18n="term.comment1"># Fastest path (Windows)</div>
           <div><span class="t-cmd">$</span> npm i -g cursor-ollama</div>
-          <div><span class="t-cmd">$</span> cursor-ollama init</div>
-          <div><span class="t-cmd">$</span> cursor-ollama setup</div>
-          <div><span class="t-cmd">$</span> cursor-ollama cursor-config</div>
+          <div><span class="t-cmd">$</span> cursor-ollama wizard</div>
+          <div><span class="t-cmd">$</span> cursor-ollama tray</div>
+          <div><span class="t-cmd">$</span> cursor-ollama verify</div>
+          <div><span class="t-cmd">$</span> cursor-ollama settings</div>
           <br>
-          <div class="t-comment"># Cursor Settings → Models</div>
-          <div class="t-out">Base URL: https://your-tunnel.example.com/v1</div>
-          <div class="t-out">Add model: gpt-4o-mini → Ollama: qwen2.5-coder:7b</div>
+          <div class="t-comment" data-i18n="term.comment2"># Cursor → Settings → Models</div>
+          <div class="t-out" data-i18n="term.out1">Base URL: https://your-host.example.com/v1</div>
+          <div class="t-out" data-i18n="term.out2">Model: gpt-4-turbo → Ollama: your-model</div>
+          <div class="t-out" data-i18n="term.out3">Quick mode: https://….trycloudflare.com/v1</div>
         </div>
       </div>
     </section>
 
-    <section id="features" class="wrap">
-      <h2>Why cursor-ollama?</h2>
-      <div class="grid-3">
-        <div class="card">
-          <h3>Cursor-compatible routing</h3>
-          <p>Cursor can't reach localhost. Cloudflare Tunnel gives a public HTTPS endpoint Cursor's backend can call.</p>
-        </div>
-        <div class="card">
-          <h3>Model name rewrite</h3>
-          <p>Use allowlisted names like <code>gpt-4o-mini</code> in Cursor while Ollama runs <code>qwen2.5-coder:7b</code> behind the proxy.</p>
-        </div>
-        <div class="card">
-          <h3>Bearer auth built in</h3>
-          <p>Strategy C proxy validates your API key before forwarding — no bare Ollama exposed to the internet.</p>
-        </div>
-        <div class="card">
-          <h3>Cross-platform CLI</h3>
-          <p>Works on Windows, macOS, and Linux. Init wizard, doctor checks, verify, and OS service install.</p>
-        </div>
-        <div class="card">
-          <h3>Zero OpenAI calls</h3>
-          <p>BYOK routes chat through your tunnel. You are not calling OpenAI — the model name is just a label Cursor accepts.</p>
-        </div>
-        <div class="card">
-          <h3>Open source</h3>
-          <p>MIT licensed. Full test suite, CI matrix, and documented fallback strategies.</p>
-        </div>
+    <section id="why" class="block wrap">
+      <div class="section-head">
+        <h2 data-i18n="why.title">Why developers choose cursor-ollama</h2>
+        <p data-i18n="why.lead">Cursor runs in the cloud and cannot reach localhost. We solve routing, naming, and security in one package.</p>
+      </div>
+      <div class="problem-grid">
+        <article class="card problem-card bad">
+          <h3 data-i18n="why.without.title">Without cursor-ollama</h3>
+          <p data-i18n="why.without.body">Manual tunnel config, exposed Ollama, model names Cursor rejects, and fragile copy-paste setup that breaks after every update.</p>
+        </article>
+        <article class="card problem-card good">
+          <h3 data-i18n="why.with.title">With cursor-ollama</h3>
+          <p data-i18n="why.with.body">Guided wizard, authenticated proxy, allowlisted model aliases, health checks, tray controls, and a complete uninstall path.</p>
+        </article>
+      </div>
+      <div class="grid-3" style="margin-top:1rem">
+        <article class="card"><div class="card-icon">⚡</div><h3 data-i18n="feat.1.title">5-minute wizard</h3><p data-i18n="feat.1.body">Graphical setup on Windows checks prerequisites, writes config, creates shortcuts, and launches tray.</p></article>
+        <article class="card"><div class="card-icon">🔒</div><h3 data-i18n="feat.2.title">Secure by default</h3><p data-i18n="feat.2.body">Strategy C proxy validates Bearer tokens. cloudflared never exposes raw Ollama to the internet.</p></article>
+        <article class="card"><div class="card-icon">🏷️</div><h3 data-i18n="feat.3.title">Model name rewrite</h3><p data-i18n="feat.3.body">Pick a Cursor-friendly name like gpt-4-turbo while Ollama runs qwen, gemma, or any local model.</p></article>
+        <article class="card"><div class="card-icon">🖥️</div><h3 data-i18n="feat.4.title">Tray + Start all</h3><p data-i18n="feat.4.body">Start or stop proxy and tunnel from the system tray. Optional launch at Windows login.</p></article>
+        <article class="card"><div class="card-icon">✅</div><h3 data-i18n="feat.5.title">Built-in verify</h3><p data-i18n="feat.5.body">Health endpoints on proxy and tunnel plus cursor-ollama verify before you paste into Cursor.</p></article>
+        <article class="card"><div class="card-icon">🧹</div><h3 data-i18n="feat.6.title">Clean uninstall</h3><p data-i18n="feat.6.body">Remove tray, shortcuts, and services with cursor-ollama uninstall or the Windows installer.</p></article>
       </div>
     </section>
 
-    <section id="how-it-works" class="wrap">
-      <h2>How it works</h2>
-      <div class="flow">
-        <span class="flow-box">Cursor cloud</span>
-        <span class="flow-arrow">→</span>
-        <span class="flow-box">HTTPS tunnel</span>
-        <span class="flow-arrow">→</span>
-        <span class="flow-box">Proxy :11435</span>
-        <span class="flow-arrow">→</span>
-        <span class="flow-box">Ollama :11434</span>
+    <section id="how" class="block wrap">
+      <div class="section-head">
+        <h2 data-i18n="how.title">How your code reaches local Ollama</h2>
+        <p data-i18n="how.lead">One HTTPS URL in Cursor. Everything else stays on your machine.</p>
       </div>
-      <p style="color:var(--muted); max-width:40rem">
-        The proxy rewrites model names and validates Bearer tokens. cloudflared forwards traffic to the proxy, never directly to Ollama.
-      </p>
+      <div class="flow-strip">
+        <div class="flow-node"><strong data-i18n="how.n1.title">Cursor IDE</strong><span data-i18n="how.n1.sub">cloud backend</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node"><strong data-i18n="how.n2.title">Cloudflare Tunnel</strong><span data-i18n="how.n2.sub">HTTPS + DNS</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node"><strong data-i18n="how.n3.title">Auth proxy</strong><span data-i18n="how.n3.sub">:11435</span></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node"><strong data-i18n="how.n4.title">Ollama</strong><span data-i18n="how.n4.sub">:11434</span></div>
+      </div>
     </section>
 
-    <section id="install" class="wrap">
-      <h2>Install</h2>
-      <pre><code>npm install -g cursor-ollama
-cursor-ollama doctor
-cursor-ollama init
+    <section id="wizard-guide" class="block wrap">
+      <div class="section-head">
+        <h2 data-i18n="guide.title">Complete wizard guide — step by step</h2>
+        <p data-i18n="guide.lead">Follow every screen in cursor-ollama wizard. Estimated time: 5–15 minutes the first time (mostly Cloudflare login).</p>
+      </div>
+      <div class="guide-shell">
+        <div class="guide-tabs">
+          <button type="button" class="guide-tab active" data-guide="wizard" data-i18n="guide.tab.wizard">Windows wizard</button>
+          <button type="button" class="guide-tab" data-guide="cli" data-i18n="guide.tab.cli">CLI path (all OS)</button>
+        </div>
+        <div id="guide-wizard" class="steps">
+          <article class="step"><div class="step-num">0</div><div><h4 data-i18n="guide.w0.title">Welcome</h4><p data-i18n="guide.w0.body">Install globally: npm i -g cursor-ollama then run cursor-ollama wizard. Toggle فارسی in the top-right if you prefer Persian.</p></div></article>
+          <article class="step"><div class="step-num">1</div><div><h4 data-i18n="guide.w1.title">Prerequisites</h4><p data-i18n="guide.w1.body">Wizard checks Node.js, Ollama, and cloudflared. Install anything marked MISSING before continuing.</p><ul><li data-i18n="guide.w1.l1">Node 18+ from nodejs.org</li><li data-i18n="guide.w1.l2">Ollama from ollama.com — run ollama serve</li><li data-i18n="guide.w1.l3">cloudflared from Cloudflare downloads</li></ul></div></article>
+          <article class="step"><div class="step-num">2</div><div><h4 data-i18n="guide.w2.title">Cloudflare Tunnel</h4><p data-i18n="guide.w2.body">Choose your tunnel mode: Cloudflare domain or temporary trycloudflare link.</p><ul><li data-i18n="guide.w2.ports">Set Ollama port (11434) and proxy port (11435) if needed.</li><li data-i18n="guide.w2.named">Named mode: hostname + Check tunnel + DNS during install.</li><li data-i18n="guide.w2.quick">Quick mode: auto URL — copy/refresh from tray or Settings later.</li></ul><pre><code>cloudflared tunnel login   # named mode only
+cloudflared tunnel create cursor-ollama</code></pre></div></article>
+          <article class="step"><div class="step-num">3</div><div><h4 data-i18n="guide.w3.title">Models</h4><p data-i18n="guide.w3.body">Choose your local Ollama model and the name Cursor should see (allowlisted alias). Example: gpt-4-turbo → qwen3.6:35b-a3b.</p><p data-i18n="guide.w3.skip">Enable Skip pull if the model is already installed locally.</p></div></article>
+          <article class="step"><div class="step-num">4</div><div><h4 data-i18n="guide.w4.title">Windows options</h4><ul><li data-i18n="guide.w4.l1">Desktop shortcut — quick access to tray</li><li data-i18n="guide.w4.l2">Start with Windows — auto-launch tray at login</li><li data-i18n="guide.w4.l3">Launch tray after install — recommended</li></ul></div></article>
+          <article class="step"><div class="step-num">5</div><div><h4 data-i18n="guide.w5.title">Install &amp; finish</h4><p data-i18n="guide.w5.body">Wizard saves ~/.cursor-ollama/config.json, writes models.map.json, configures tunnel YAML, creates shortcuts, and shows a Cursor settings block to copy.</p><p data-i18n="guide.w5.close">Click Close wizard when done. You can close the browser tab — the server stops automatically.</p></div></article>
+        </div>
+        <div id="guide-cli" class="steps" hidden>
+          <article class="step"><div class="step-num">1</div><div><h4 data-i18n="guide.c1.title">Install &amp; doctor</h4><pre><code>npm install -g cursor-ollama
+cursor-ollama doctor</code></pre></div></article>
+          <article class="step"><div class="step-num">2</div><div><h4 data-i18n="guide.c2.title">Interactive init</h4><pre><code>cursor-ollama init
 cloudflared tunnel login
 cloudflared tunnel create cursor-ollama
-cursor-ollama setup
-cursor-ollama cursor-config</code></pre>
-      <h3 style="margin-top:2rem; font-size:1.15rem;">Run tunnel + proxy</h3>
-      <pre><code># Production: setup installs cloudflared + proxy OS services
-cursor-ollama setup
-cursor-ollama proxy install
+cursor-ollama setup</code></pre></div></article>
+          <article class="step"><div class="step-num">3</div><div><h4 data-i18n="guide.c3.title">Run stack</h4><pre><code>cursor-ollama stack start
+cursor-ollama verify
+cursor-ollama cursor-config</code></pre></div></article>
+          <article class="step"><div class="step-num">4</div><div><h4 data-i18n="guide.c4.title">Daily use</h4><pre><code>cursor-ollama tray              # background tray
+cursor-ollama settings          # ports + tunnel mode + quick link
+cursor-ollama stack status</code></pre></div></article>
+        </div>
+      </div>
+    </section>
 
-# Dev: run both in foreground (two terminals)
-cursor-ollama proxy start
-cursor-ollama tunnel run
+    <section id="settings-tray" class="block wrap">
+      <div class="section-head">
+        <h2 data-i18n="settings.title">Settings page &amp; tray</h2>
+        <p data-i18n="settings.lead">After install, manage ports, tunnel mode, and public URLs without editing JSON by hand.</p>
+      </div>
+      <div class="grid-2">
+        <article class="card"><h3 data-i18n="settings.s1.title">Open Settings</h3><p data-i18n="settings.s1.body">Tray → Settings… or cursor-ollama settings.</p></article>
+        <article class="card"><h3 data-i18n="settings.s2.title">Copy tunnel URL</h3><p data-i18n="settings.s2.body">Tray → Copy tunnel URL for Cursor Base URL.</p></article>
+        <article class="card"><h3 data-i18n="settings.s3.title">Refresh quick tunnel</h3><p data-i18n="settings.s3.body">New trycloudflare link — update Cursor after refresh.</p></article>
+        <article class="card"><h3 data-i18n="settings.s4.title">Advanced: config file</h3><p data-i18n="settings.s4.body">Tray → Open config file; Stop all → Start all after port changes.</p></article>
+      </div>
+    </section>
 
-# Or use the system tray (one app, no admin)
-cursor-ollama tray
+    <section id="cursor-setup" class="block wrap">
+      <div class="section-head">
+        <h2 data-i18n="cursor.title">Connect Cursor IDE in 60 seconds</h2>
+        <p data-i18n="cursor.lead">After verify passes, paste these values into Cursor Settings → Models (BYOK / OpenAI-compatible).</p>
+      </div>
+      <div class="grid-2">
+        <article class="card">
+          <h3 data-i18n="cursor.s1.title">1. Open Cursor settings</h3>
+          <p data-i18n="cursor.s1.body">Cursor → Settings → Models → OpenAI API key section. Enable Override OpenAI Base URL.</p>
+        </article>
+        <article class="card">
+          <h3 data-i18n="cursor.s2.title">2. Paste your tunnel URL</h3>
+          <p data-i18n="cursor.s2.body">Base URL must end with /v1. Use the Bearer key from cursor-ollama cursor-config or config.json.</p>
+          <pre><code>Base URL: https://YOUR-TUNNEL-HOST/v1
+API Key:  (from cursor-ollama cursor-config)
+Model:    gpt-4-turbo  (your chosen alias)</code></pre>
+        </article>
+        <article class="card">
+          <h3 data-i18n="cursor.s3.title">3. Test in chat</h3>
+          <p data-i18n="cursor.s3.body">Open a new chat, select your mapped model, and send a message. Traffic stays on your hardware — no OpenAI billing.</p>
+        </article>
+        <article class="card">
+          <h3 data-i18n="cursor.s4.title">4. Keep stack running</h3>
+          <p data-i18n="cursor.s4.body">Use tray → Start all or cursor-ollama stack start. If tunnel shows off, run verify and check cloudflared credentials.</p>
+        </article>
+      </div>
+    </section>
 
-# Check
-cursor-ollama tunnel status
-cursor-ollama verify</code></pre>
-      <p style="color:var(--muted); margin-top:1rem; font-size:.9rem">
-        Requires Node.js 18+, <a href="https://ollama.com/download" style="color:var(--accent)">Ollama</a>,
-        <a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/" style="color:var(--accent)">cloudflared</a>,
-        and a domain on Cloudflare DNS.
-      </p>
+    <section id="requirements" class="block wrap">
+      <div class="section-head">
+        <h2 data-i18n="req.title">Before you start — checklist</h2>
+      </div>
+      <div class="grid-3">
+        <article class="card"><h3>Node.js 18+</h3><p data-i18n="req.node">Runs the CLI, wizard server, proxy, and tray.</p></article>
+        <article class="card"><h3>Ollama</h3><p data-i18n="req.ollama">Local LLM server on port 11434 with at least one pulled model.</p></article>
+        <article class="card"><h3>cloudflared</h3><p data-i18n="req.cloudflared">Cloudflare Tunnel connector. Required for both named tunnels and trycloudflare quick links.</p></article>
+        <article class="card"><h3>Cloudflare domain</h3><p data-i18n="req.domain">Optional — use wizard quick mode for a temporary trycloudflare URL instead.</p></article>
+      </div>
+    </section>
+
+    <section id="faq" class="block wrap">
+      <div class="section-head">
+        <h2 data-i18n="faq.title">Frequently asked questions</h2>
+      </div>
+      <div class="faq">
+        <details><summary data-i18n="faq.q1">Is this really free?</summary><p data-i18n="faq.a1">Yes. cursor-ollama is MIT licensed. You may pay for your domain, electricity, and hardware — not OpenAI tokens.</p></details>
+        <details><summary data-i18n="faq.q2">Does Cursor send data to OpenAI?</summary><p data-i18n="faq.a2">With BYOK configured to your tunnel URL, chat goes to your proxy → Ollama. Model names like gpt-4-turbo are aliases only.</p></details>
+        <details><summary data-i18n="faq.q3">Tunnel health returns 530 / off in tray</summary><p data-i18n="faq.a3">Start proxy first, then tunnel. Run cursor-ollama stack start. Missing credentials are auto-repaired; restart tray after updating.</p></details>
+        <details><summary data-i18n="faq.q4">How do I uninstall?</summary><p data-i18n="faq.a4">Run cursor-ollama uninstall or use Windows Add/Remove Programs. Use --keep-config to preserve settings.</p></details>
+        <details><summary data-i18n="faq.q5">Can I use macOS or Linux?</summary><p data-i18n="faq.a5">Yes via CLI path. The graphical wizard and tray shortcuts are optimized for Windows; stack commands work everywhere.</p></details>
+        <details><summary data-i18n="faq.q6">No Cloudflare domain?</summary><p data-i18n="faq.a6">In the wizard choose temporary trycloudflare link. Copy/refresh the URL from tray or Settings.</p></details>
+        <details><summary data-i18n="faq.q7">Cursor model name variants (gpt-4o, dated names)?</summary><p data-i18n="faq.a7">The proxy rewrites exact names, dated variants, and falls back to your active mapping.</p></details>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <div class="cta-band">
+        <h2 data-i18n="cta.title">Ready for local AI coding in Cursor?</h2>
+        <p data-i18n="cta.body">Install once, run the wizard, paste three fields into Cursor, and code with your own models tonight.</p>
+        <div class="cta-row" style="justify-content:center">
+          <a class="btn btn-primary" href="https://www.npmjs.com/package/cursor-ollama" data-i18n="cta.npm">Get cursor-ollama on npm</a>
+          <a class="btn btn-ghost" href="https://github.com/kakajan/cursor-ollama" data-i18n="cta.github">Star on GitHub</a>
+        </div>
+      </div>
     </section>
   </main>
 
-  <footer>
+  <footer class="site-footer">
     <p>
-      <a href="https://github.com/kakajan/cursor-ollama">GitHub</a> ·
-      <a href="https://www.npmjs.com/package/cursor-ollama">npm</a> ·
-      <a href="http://usher.ir">AYTRONIC CO</a> ·
-      MIT License
+      <a href="https://github.com/kakajan/cursor-ollama" data-i18n="footer.github">GitHub</a> ·
+      <a href="https://www.npmjs.com/package/cursor-ollama" data-i18n="footer.npm">npm</a> ·
+      <a href="http://usher.ir" data-i18n="footer.company">AYTRONIC CO</a> ·
+      <span data-i18n="footer.license">MIT License</span>
     </p>
-    <p style="margin-top:.5rem">Maintained by <a href="https://github.com/kakajan">@kakajan</a> · SEO: <code>docs/seo.json</code></p>
+    <p style="margin-top:.5rem" data-i18n="footer.tag">Built for developers who want local LLMs in Cursor — without the setup headache.</p>
   </footer>
+
+  <script src="i18n.js"></script>
+  <script>
+    document.querySelectorAll('.guide-tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.guide-tab').forEach((t) => t.classList.remove('active'));
+        tab.classList.add('active');
+        const wizard = document.getElementById('guide-wizard');
+        const cli = document.getElementById('guide-cli');
+        const showWizard = tab.dataset.guide === 'wizard';
+        wizard.hidden = !showWizard;
+        cli.hidden = showWizard;
+      });
+    });
+  </script>
 </body>
 </html>

@@ -21,6 +21,11 @@ export async function stopProxyService() {
   return mod.stopProxyService();
 }
 
+export async function uninstallProxyService() {
+  const mod = await getPlatformService();
+  return mod.uninstallProxyService();
+}
+
 export async function proxyServiceStatus() {
   const mod = await getPlatformService();
   return mod.proxyServiceStatus();

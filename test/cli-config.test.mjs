@@ -78,4 +78,16 @@ describe('CLI config', () => {
     assert.ok(map.mappings.some((entry) => entry.cursorName === 'gpt-4o'));
     assert.equal(map.activeMapping.ollamaName, 'llama3.2:3b');
   });
+
+  it('keeps empty tunnel hostname in quick mode', () => {
+    saveConfig({
+      ...loadConfig(),
+      tunnelMode: 'quick',
+      tunnelHostname: '',
+    });
+
+    const loaded = loadConfig();
+    assert.equal(loaded.tunnelMode, 'quick');
+    assert.equal(loaded.tunnelHostname, '');
+  });
 });

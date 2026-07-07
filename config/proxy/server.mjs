@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '../..');
+const HEALTH_PATHS = new Set(['/health', '/healthz', '/v1/health']);
 
 function resolveModelsMapPath() {
   if (process.env.MODELS_MAP_PATH && fs.existsSync(process.env.MODELS_MAP_PATH)) {
@@ -34,7 +35,7 @@ function loadConfig(configPath) {
   return JSON.parse(raw);
 }
 
-function buildModelMap(mappings = []) {
+export function buildModelMap(mappings = []) {
   const map = new Map();
   for (const entry of mappings) {
     map.set(entry.cursorName, entry.ollamaName);
@@ -57,7 +58,32 @@ function readBody(req) {
   });
 }
 
-function rewriteModelInBody(bodyBuffer, modelMap) {
+export function resolveOllamaModel(requestedModel, modelMap, config = {}) {
+  const exact = modelMap.get(requestedModel);
+  if (exact) {
+    return exact;
+  }
+
+  // Prefer the most specific alias when multiple prefixes match.
+  let prefixedMatch = null;
+  let prefixedMatchLen = -1;
+  for (const [cursorName, ollamaName] of modelMap) {
+    if (requestedModel.startsWith(`${cursorName}-`) && cursorName.length > prefixedMatchLen) {
+      prefixedMatch = ollamaName;
+      prefixedMatchLen = cursorName.length;
+    }
+  }
+  if (prefixedMatch) return prefixedMatch;
+
+  const active = config.activeMapping || config.mappings?.[0];
+  if (active?.ollamaName) {
+    return active.ollamaName;
+  }
+
+  return null;
+}
+
+function rewriteModelInBody(bodyBuffer, modelMap, config = {}) {
   const text = bodyBuffer.toString('utf8');
   let parsed;
   try {
@@ -70,7 +96,7 @@ function rewriteModelInBody(bodyBuffer, modelMap) {
     return { body: bodyBuffer, parsed };
   }
 
-  const ollamaName = modelMap.get(parsed.model);
+  const ollamaName = resolveOllamaModel(parsed.model, modelMap, config);
   if (!ollamaName) {
     return {
       error: `Unknown model "${parsed.model}". Allowed: ${[...modelMap.keys()].join(', ')}`,
@@ -82,7 +108,46 @@ function rewriteModelInBody(bodyBuffer, modelMap) {
   return { body: Buffer.from(JSON.stringify(parsed)), parsed, rewritten: true };
 }
 
+function getPathname(urlPath = '/') {
+  try {
+    return new URL(urlPath, 'http://127.0.0.1').pathname;
+  } catch {
+    return (urlPath || '/').split('?')[0] || '/';
+  }
+}
+
+function sendHealth(res, config, method = 'GET') {
+  const active = config.activeMapping || config.mappings?.[0] || {};
+  const payload = {
+    ok: true,
+    service: 'cursor-ollama-proxy',
+    secureTunnel: config.secureTunnel !== false,
+    cursorModelName: active.cursorName || null,
+    ollamaModelName: active.ollamaName || null,
+    mappingsCount: Array.isArray(config.mappings) ? config.mappings.length : 0,
+    timestamp: new Date().toISOString(),
+  };
+
+  res.writeHead(200, {
+    'Content-Type': 'application/json',
+    'Cache-Control': 'no-store',
+  });
+  if (method === 'HEAD') {
+    res.end();
+    return;
+  }
+  res.end(JSON.stringify(payload));
+}
+
 function proxyRequest(req, res, config, modelMap) {
+  const targetPath = req.url || '/';
+  const pathname = getPathname(targetPath);
+
+  if ((req.method === 'GET' || req.method === 'HEAD') && HEALTH_PATHS.has(pathname)) {
+    sendHealth(res, config, req.method);
+    return;
+  }
+
   const secure = config.secureTunnel !== false;
   if (secure) {
     const token = extractBearer(req);
@@ -100,13 +165,12 @@ function proxyRequest(req, res, config, modelMap) {
   }
 
   const ollamaPort = config.ollamaPort || 11434;
-  const targetPath = req.url || '/';
 
   const needsRewrite =
     req.method === 'POST' &&
-    (targetPath.startsWith('/v1/chat/completions') ||
-      targetPath.startsWith('/v1/completions') ||
-      targetPath.startsWith('/v1/embeddings'));
+    (pathname.startsWith('/v1/chat/completions') ||
+      pathname.startsWith('/v1/completions') ||
+      pathname.startsWith('/v1/embeddings'));
 
   const forward = (bodyBuffer) => {
     const options = {
@@ -159,7 +223,7 @@ function proxyRequest(req, res, config, modelMap) {
 
   readBody(req)
     .then((body) => {
-      const result = rewriteModelInBody(body, modelMap);
+      const result = rewriteModelInBody(body, modelMap, config);
       if (result.error) {
         res.writeHead(result.status, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: result.error }));

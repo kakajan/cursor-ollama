@@ -9,6 +9,13 @@ import { runCommand, fetchOk, sleep, WINDOWS_SERVICE_HINT, isWindowsAdmin } from
 import { getConfigPath, getTunnelTemplatePath } from '../lib/paths.mjs';
 import { installProxyService } from '../lib/platform/index.mjs';
 import { ensureModelAvailable } from '../lib/ollama.mjs';
+import {
+  findTunnelId,
+  listCloudflaredTunnels,
+  routeTunnelDns,
+  tunnelExistsInList,
+  ensureTunnelCredentials,
+} from '../lib/tunnel.mjs';
 
 function renderTunnelConfig(template, values) {
   return template
@@ -45,11 +52,6 @@ async function waitForTunnel(config, tunnelList = '') {
   } finally {
     rl.close();
   }
-}
-
-function findTunnelId(tunnelList, tunnelName) {
-  const line = tunnelList.split('\n').find((entry) => entry.includes(tunnelName));
-  return line?.trim().split(/\s+/)[0] || '';
 }
 
 export async function runSetup(options = {}) {
@@ -103,18 +105,11 @@ export async function runSetup(options = {}) {
   if (!options.skipTunnel) {
     fs.mkdirSync(config.cloudflaredDir, { recursive: true });
 
-    let tunnelList = '';
-    try {
-      const result = await runCommand('cloudflared', ['tunnel', 'list']);
-      tunnelList = result.stdout;
-    } catch {
-      /* empty */
-    }
+    let tunnelList = await listCloudflaredTunnels();
 
-    if (!tunnelList.includes(config.tunnelName)) {
+    if (!tunnelExistsInList(tunnelList, config.tunnelName)) {
       await waitForTunnel(config, tunnelList);
-      const refreshed = await runCommand('cloudflared', ['tunnel', 'list']);
-      tunnelList = refreshed.stdout;
+      tunnelList = await listCloudflaredTunnels();
     }
 
     const tunnelId = findTunnelId(tunnelList, config.tunnelName);
@@ -137,10 +132,9 @@ export async function runSetup(options = {}) {
     );
     console.log(`Wrote tunnel config: ${tunnelYml}`);
 
-    await runCommand('cloudflared', ['tunnel', 'route', 'dns', config.tunnelName, config.tunnelHostname], {
-      allowFail: true,
-      inherit: true,
-    });
+    await ensureTunnelCredentials(tunnelYml);
+
+    await routeTunnelDns(config, { force: true });
 
     console.log('Installing cloudflared service...');
     if (process.platform === 'win32' && !(await isWindowsAdmin())) {

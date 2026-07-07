@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>cursor-ollama — About</title>
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="lang-switch">
+    <button type="button" data-lang="en" class="active">EN</button>
+    <button type="button" data-lang="fa">فارسی</button>
+  </div>
+
+  <div class="shell">
+    <header class="header">
+      <img class="logo-img" src="/logo.svg" alt="">
+      <h1 data-i18n="title">cursor-ollama</h1>
+      <p id="versionLine">v…</p>
+      <p class="lead" data-i18n="subtitle">Connect local Ollama to Cursor IDE via Cloudflare Tunnel.</p>
+    </header>
+
+    <div class="card">
+      <section class="panel active">
+        <h2 data-i18n="about.title">About</h2>
+        <p data-i18n="about.body">
+          Free, open-source CLI with Windows wizard, secure proxy, model name rewrite, tray controls,
+          and optional temporary trycloudflare links.
+        </p>
+        <p class="hint-box" id="licenseLine">MIT License</p>
+
+        <h2 data-i18n="support.title">Support</h2>
+        <p data-i18n="support.body">Star the repo, report bugs, or ask questions on GitHub Issues.</p>
+        <div class="link-list" id="supportLinks"></div>
+
+        <h2 data-i18n="contribute.title">Contribute</h2>
+        <p data-i18n="contribute.body">
+          Pull requests and documentation improvements are welcome. Fork the repository and share your setup tips.
+        </p>
+        <div class="link-list" id="contributeLinks"></div>
+      </section>
+
+      <div class="actions">
+        <button type="button" class="btn btn-primary" id="btnClose" data-i18n="btn.close">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js" type="module"></script>
+</body>
+</html>
